@@ -1,0 +1,224 @@
+import type { Types } from '@graphql-codegen/plugin-helpers'
+import type { NuxtTemplate } from '@nuxt/schema'
+
+import type { ShopifyConfig } from '../types'
+
+import { existsSync } from 'node:fs'
+import { join } from 'node:path'
+import { generate } from '@graphql-codegen/cli'
+import { preset, pluckConfig } from '@shopify/graphql-codegen'
+import { LogLevels } from 'consola'
+import { kebabCase, upperFirst } from 'scule'
+import defu from 'defu'
+
+import { ShopifyClientType } from '../schemas'
+import { useLogger } from './log'
+import { getAdminAccessToken } from '../runtime/server/utils/admin/auth'
+import { joinURL } from 'ufo'
+import { createStoreDomain } from '../runtime/utils/client'
+
+type ShopifyTemplateOptions = {
+  filename: string
+  shopName: string
+  clientType: ShopifyClientType
+  clientConfig: ShopifyConfig['clients'][ShopifyClientType]
+  introspection?: string
+}
+
+type InterfaceExtensionsParams = {
+  queryType: string
+  mutationType: string
+}
+
+async function extractResult(input: Promise<Types.FileOutput[]>, config: ShopifyConfig) {
+  try {
+    return (await input)?.at(0)?.content ?? ''
+  }
+  catch (error) {
+    useLogger(config).error((error as Error).message)
+    return ''
+  }
+}
+
+export function getInterfaceExtensionFunction(clientType: ShopifyClientType, queryType: string, mutationType: string) {
+  return `
+declare module '@nuxtjs/shopify/${kebabCase(clientType)}' {
+    type InputMaybe<T> = ${upperFirst(clientType)}Types.InputMaybe<T>
+    interface ${upperFirst(clientType)}Queries extends ${queryType} {}
+    interface ${upperFirst(clientType)}Mutations extends ${mutationType} {}
+}
+`
+}
+
+async function getIntrospection(options: ShopifyTemplateOptions, config?: ShopifyConfig) {
+  const { shopName, clientType, clientConfig, introspection } = options
+
+  if (introspection && existsSync(introspection)) {
+    return introspection
+  }
+
+  const apiVersion = clientConfig?.apiVersion
+  const headers: Record<string, string> = { ...(clientConfig?.headers as Record<string, string>) }
+
+  let apiUrl: string
+
+  if (clientType === ShopifyClientType.Storefront) {
+    const storefrontConfig = clientConfig as NonNullable<ShopifyConfig['clients']['storefront']>
+
+    if (storefrontConfig.mock) {
+      apiUrl = `https://mock.shop/api`
+    }
+    else {
+      apiUrl = joinURL(createStoreDomain(shopName), `api/${apiVersion}/graphql.json`)
+
+      if (storefrontConfig.privateAccessToken) {
+        headers['Shopify-Storefront-Private-Token'] = storefrontConfig.privateAccessToken
+      }
+      else if (storefrontConfig.publicAccessToken) {
+        headers['X-Shopify-Storefront-Access-Token'] = storefrontConfig.publicAccessToken
+      }
+    }
+  }
+  else if (clientType === ShopifyClientType.CustomerAccount) {
+    try {
+      return [import.meta.resolve('@shopify/hydrogen/customer-account.schema.json')]
+    }
+    catch (error) {
+      useLogger(config).error('Failed to load customer account schema. Please ensure @shopify/hydrogen is installed.', error)
+    }
+
+    return []
+  }
+  else if (clientType === ShopifyClientType.Admin) {
+    const adminConfig = clientConfig as NonNullable<ShopifyConfig['clients']['admin']>
+    apiUrl = joinURL(createStoreDomain(shopName), `admin/api/${apiVersion}/graphql.json`)
+    headers['X-Shopify-Access-Token'] = await getAdminAccessToken(shopName, adminConfig)
+  }
+  else {
+    throw new Error(`Unsupported client type: ${clientType}`)
+  }
+
+  return [
+    {
+      [apiUrl]: { headers },
+    },
+  ]
+}
+
+function getTypescriptPluginConfig(config: ShopifyConfig['clients'][ShopifyClientType]) {
+  return defu({ typescript: config?.codegen?.pluginOptions?.typescript }, {
+    typescript: {
+      useTypeImports: true,
+      defaultScalarType: 'unknown',
+      useImplementingTypes: true,
+      enumsAsTypes: true,
+      scalars: {
+        DateTime: 'string',
+        Decimal: 'string',
+        HTML: 'string',
+        URL: 'string',
+        Color: 'string',
+        UnsignedInt64: 'string',
+        ISO8601DateTime: 'string',
+        JSON: 'string',
+      },
+    },
+  })
+}
+
+export function createIntrospectionGenerator(config: ShopifyConfig): NuxtTemplate<ShopifyTemplateOptions>['getContents'] {
+  return async (data) => {
+    const generatorConfig = {
+      schema: await getIntrospection(data.options),
+      plugins: [{
+        introspection: {
+          minify: true,
+        },
+      }],
+    } satisfies Types.ConfiguredOutput
+
+    await data.nuxt.callHook(`${kebabCase(data.options.clientType)}:generate:introspection`, {
+      nuxt: data.nuxt,
+      config: generatorConfig,
+    })
+
+    return extractResult(generate({
+      overwrite: true,
+      ignoreNoDocuments: true,
+      silent: useLogger(config).level < LogLevels.debug,
+      generates: {
+        [data.options.filename]: generatorConfig,
+      },
+    }, false), config)
+  }
+}
+
+export function createTypesGenerator(config: ShopifyConfig): NuxtTemplate<ShopifyTemplateOptions>['getContents'] {
+  return async (data) => {
+    const generatorConfig = {
+      schema: await getIntrospection(data.options),
+      plugins: [getTypescriptPluginConfig(data.options.clientConfig)],
+    } satisfies Types.ConfiguredOutput
+
+    await data.nuxt.callHook(`${kebabCase(data.options.clientType)}:generate:types`, {
+      nuxt: data.nuxt,
+      config: generatorConfig,
+    })
+
+    return extractResult(generate({
+      overwrite: true,
+      ignoreNoDocuments: true,
+      silent: useLogger(config).level < LogLevels.debug,
+      generates: {
+        [data.options.filename]: generatorConfig,
+      },
+    }, false), config)
+  }
+}
+
+export function createOperationsGenerator(config: ShopifyConfig): NuxtTemplate<ShopifyTemplateOptions>['getContents'] {
+  return async (data) => {
+    const generatorConfig = {
+      schema: await getIntrospection(data.options),
+      preset,
+      documents: data.options.clientConfig?.documents?.map((d) => {
+        if (d.startsWith('!')) {
+          return '!' + join(data.nuxt.options.rootDir, d.replace('!', ''))
+        }
+
+        return join(data.nuxt.options.rootDir, d)
+      }),
+      presetConfig: {
+        importTypes: {
+          namespace: `${upperFirst(data.options.clientType)}Types`,
+          from: `./${kebabCase(data.options.clientType)}.types.d.ts`,
+        },
+        skipTypenameInOperations: true,
+        interfaceExtension: (params: InterfaceExtensionsParams) => {
+          return getInterfaceExtensionFunction(
+            data.options.clientType,
+            params.queryType,
+            params.mutationType,
+          )
+        },
+      },
+    } satisfies Types.ConfiguredOutput
+
+    await data.nuxt.callHook(`${kebabCase(data.options.clientType)}:generate:operations`, {
+      nuxt: data.nuxt,
+      config: generatorConfig,
+    })
+
+    return extractResult(generate({
+      overwrite: true,
+      silent: useLogger(config).level < LogLevels.debug,
+      generates: {
+        [data.options.filename]: generatorConfig,
+      },
+      // @ts-expect-error weird behavior
+      pluckConfig,
+    }, false), config)
+  }
+}
+
+export type { ShopifyTemplateOptions }
