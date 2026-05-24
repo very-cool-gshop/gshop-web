@@ -1,7 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     modules: [
-        '../src/module',
+        '@nuxtjs/shopify',
         '@nuxtjs/critters',
         '@nuxtjs/i18n',
         '@nuxt/image',
@@ -30,6 +30,10 @@ export default defineNuxtConfig({
     routeRules: {
         '/': { prerender: true },
         '/blog/**': { isr: 3600 },
+    },
+
+    devServer: {
+        port: 3003,
     },
 
     compatibilityDate: '2026-03-15',
