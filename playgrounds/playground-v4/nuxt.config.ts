@@ -1,4 +1,8 @@
 export default defineNuxtConfig({
+  devServer: {
+    port: 3003
+  },
+
   modules: [
     '../../src/module',
     'nuxt-auth-utils',
