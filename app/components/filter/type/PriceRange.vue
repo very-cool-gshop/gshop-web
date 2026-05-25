@@ -38,7 +38,7 @@ const submit = async (value: FilterValue) => set(componentToFilter(value))
         <div class="flex flex-row gap-4">
             <UFormField
                 name="min"
-                :label="$t('price.from')"
+                label="from"
             >
                 <UInputNumber
                     v-model="state.min"
@@ -51,7 +51,7 @@ const submit = async (value: FilterValue) => set(componentToFilter(value))
 
             <UFormField
                 name="max"
-                :label="$t('price.to')"
+                label="to"
             >
                 <UInputNumber
                     v-model="state.max"

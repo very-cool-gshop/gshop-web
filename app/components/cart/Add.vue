@@ -21,8 +21,8 @@ const addToCart = async () => {
         color="neutral"
         variant="ghost"
         trailing-icon="i-lucide-shopping-bag"
-        :label="$t('product.add')"
-        :aria-label="$t('product.choose')"
+        label="Add"
+        aria-label="Choose"
         :ui="{
             trailingIcon: 'size-5',
             label: [

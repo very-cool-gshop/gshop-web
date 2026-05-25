@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { language, country } = useLocalization()
-const localePath = useLocalePath()
 
 const { data: items } = await useStorefrontData('main-menu', `#graphql
     query GetNavigation($handle: String!, $language: LanguageCode, $country: CountryCode)
@@ -19,9 +18,9 @@ const { data: items } = await useStorefrontData('main-menu', `#graphql
     transform: data => data.menu?.items?.map(item => ({
         label: item.title,
         to: item.resource?.__typename === 'Blog'
-            ? localePath(`/blog/${item.resource?.handle}`)
+            ? `/blog/${item.resource?.handle}`
             : item.resource?.__typename === 'Collection'
-                ? localePath(`/collection/${item.resource?.handle}`)
+                ? `/collection/${item.resource?.handle}`
                 : item.url ?? undefined,
     })) ?? [],
     cache: 'long',

@@ -7,9 +7,7 @@ const props = defineProps<{
     loading?: 'eager' | 'lazy'
 }>()
 
-const localePath = useLocalePath()
-
-const url = computed(() => localePath(`/product/${props.product.handle}`))
+const url = computed(() => `/product/${props.product.handle}`)
 const images = computed(() => flattenConnection(props.product.images))
 const variants = computed(() => flattenConnection(props.product.variants))
 
@@ -39,7 +37,7 @@ const variant = ref(variants.value[0])
             >
                 <NuxtLink
                     :to="url"
-                    :aria-label="`${$t('product.view')}: '${props.product.title}'`"
+                    :aria-label="`View product: '${props.product.title}'`"
                 >
                     <ProductImage
                         :image="item"
@@ -52,7 +50,7 @@ const variant = ref(variants.value[0])
             <NuxtLink
                 v-else
                 :to="url"
-                :aria-label="`${$t('product.view')}: '${props.product.title}'`"
+                :aria-label="`View product: '${props.product.title}'`"
             >
                 <ProductImage
                     :image="images?.[0] ?? undefined"

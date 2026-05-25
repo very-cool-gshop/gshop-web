@@ -5,8 +5,6 @@ const props = defineProps<{
     price: PriceFieldsFragment
 }>()
 
-const { locale } = useI18n()
-
 const price = computed(() => {
     const currencyCode = props.price?.currencyCode
 
@@ -14,7 +12,7 @@ const price = computed(() => {
 
     const rawPrice = Number(props.price.amount)
 
-    const formatter = new Intl.NumberFormat(locale.value, {
+    const formatter = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: currencyCode,
     })

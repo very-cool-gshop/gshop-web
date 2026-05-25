@@ -1,47 +1,5 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '#ui/types'
-import type { Locale } from '#i18n'
-
-const { language, country, getCountry } = useLocalization()
-const switchLocalePath = useSwitchLocalePath()
-const { locale, locales } = useI18n()
-
-const { data: localization } = await useStorefrontData(`localizations-${locale.value}`, `#graphql
-    query AllLocalizations($language: LanguageCode, $country: CountryCode)
-    @inContext(language: $language, country: $country) {
-        localization {
-            availableCountries {
-                isoCode
-                name
-                currency {
-                    isoCode
-                    symbol
-                    name
-                }
-            }
-        }
-    }
-`, {
-    variables: localizationParamsSchema.parse({
-        language: language.value,
-        country: country.value,
-    }),
-    transform: data => data?.localization,
-    cache: 'long',
-})
-
-const getCountryLabel = (code: Locale) => {
-    const country = localization.value?.availableCountries.find(c => c.isoCode === getCountry(code).toUpperCase())
-
-    return `${country?.name} (${country?.currency.isoCode})`
-}
-
-const switchLocale = async (locale: string) => navigateTo(switchLocalePath(locale as Locale))
-
-const countries = computed(() => locales.value.map(l => ({
-    label: getCountryLabel(l.code),
-    value: l.code,
-})))
 
 const items = computed<NavigationMenuItem[]>(() => [
     {
@@ -95,7 +53,7 @@ const items = computed<NavigationMenuItem[]>(() => [
 
         <template #left>
             <p class="text-muted text-sm">
-                {{ $t('footer.message') }}
+                Published under the MIT License.
             </p>
         </template>
 
@@ -106,22 +64,13 @@ const items = computed<NavigationMenuItem[]>(() => [
                     {
                         icon: 'i-lucide-github',
                         to: 'https://github.com/nuxt-modules/shopify/tree/main/template',
-                        label: $t('footer.github'),
+                        label: 'View on GitHub',
                         target: '_blank',
                     },
                 ]"
                 :ui="{
                     linkLabelExternalIcon: 'hidden',
                 }"
-            />
-
-            <USelect
-                :items="countries"
-                :default-value="locale"
-                icon="i-lucide-globe"
-                variant="ghost"
-                :aria-label="$t('footer.country')"
-                @update:model-value="async value => switchLocale(value)"
             />
         </template>
     </UFooter>

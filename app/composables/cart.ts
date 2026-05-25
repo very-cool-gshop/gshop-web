@@ -4,7 +4,6 @@ export const useCart = () => {
     const { language, country } = useLocalization()
     const storefront = useStorefront()
     const toast = useToast()
-    const { t } = useI18n()
 
     const cart = useState<CartFieldsFragment | undefined>('shopify-cart', () => undefined)
     const loading = useState('shopify-cart-loading', () => ref(false))
@@ -47,13 +46,13 @@ export const useCart = () => {
     })).then(({ data }) =>
         id.value = data?.cartCreate?.cart?.id ?? '',
     ).catch(() => toast.add({
-        title: t('cart.toast.error.init'),
-        description: t('cart.toast.error.tryAgain'),
+        title: 'Could not initialize cart.',
+        description: 'Please try again.',
         color: 'error',
     })).finally(() => setLoading(false))
 
     const get = () => setLoading(true).then(() => storefront.request(`#graphql
-        query GetCart($id: ID!, $language: LanguageCode, $country: CountryCode) 
+        query GetCart($id: ID!, $language: LanguageCode, $country: CountryCode)
         @inContext(language: $language, country: $country) {
             cart(id: $id) {
                 ...CartFields
@@ -72,8 +71,8 @@ export const useCart = () => {
     })).then(({ data }) =>
         cart.value = data?.cart ?? undefined,
     ).catch(() => toast.add({
-        title: t('cart.toast.error.get'),
-        description: t('cart.toast.error.tryAgain'),
+        title: 'Could not retrieve cart.',
+        description: 'Please try again.',
         color: 'error',
     })).finally(() => setLoading(false))
 
@@ -110,22 +109,22 @@ export const useCart = () => {
         cart.value = data?.cartLinesAdd?.cart ?? undefined
 
         if (!open.value) toast.add({
-            title: t('cart.toast.add'),
+            title: 'Item added to cart.',
             avatar: getAvatar(variantId, data?.cartLinesAdd?.cart?.lines),
             actions: [
-                { label: t('cart.toast.view'), onClick: () => { open.value = true } },
+                { label: 'View cart', onClick: () => { open.value = true } },
             ],
             color: 'success',
             ui: { avatar: 'rounded-sm size-14' },
         })
     }).catch(() => toast.add({
-        title: t('cart.toast.error.add'),
-        description: t('cart.toast.error.tryAgain'),
+        title: 'Could not add item to cart.',
+        description: 'Please try again.',
         color: 'error',
     })).finally(() => setLoading(false))
 
     const update = (variantId: string, quantity: number) => setLoading(true).then(() => storefront.request(`#graphql
-        mutation UpdateCart($cartId: ID!, $lines: [CartLineUpdateInput!]!, $language: LanguageCode, $country: CountryCode) 
+        mutation UpdateCart($cartId: ID!, $lines: [CartLineUpdateInput!]!, $language: LanguageCode, $country: CountryCode)
         @inContext(language: $language, country: $country) {
             cartLinesUpdate(cartId: $cartId, lines: $lines) {
                 cart {
@@ -157,22 +156,22 @@ export const useCart = () => {
         cart.value = data?.cartLinesUpdate?.cart ?? undefined
 
         if (!open.value) toast.add({
-            title: t('cart.toast.update'),
+            title: 'Cart updated.',
             avatar: getAvatar(variantId, data?.cartLinesUpdate?.cart?.lines),
             actions: [
-                { label: t('cart.toast.view'), onClick: () => { open.value = true } },
+                { label: 'View cart', onClick: () => { open.value = true } },
             ],
             color: 'success',
             ui: { avatar: 'rounded-sm size-14' },
         })
     }).catch(() => toast.add({
-        title: t('cart.toast.error.update'),
-        description: t('cart.toast.error.tryAgain'),
+        title: 'Could not update item in cart.',
+        description: 'Please try again.',
         color: 'error',
     })).finally(() => setLoading(false))
 
     const remove = (variantId: string) => setLoading(true).then(() => storefront.request(`#graphql
-        mutation RemoveFromCart($cartId: ID!, $lineIds: [ID!]!, $language: LanguageCode, $country: CountryCode) 
+        mutation RemoveFromCart($cartId: ID!, $lineIds: [ID!]!, $language: LanguageCode, $country: CountryCode)
         @inContext(language: $language, country: $country) {
             cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
                 cart {
@@ -199,15 +198,15 @@ export const useCart = () => {
         cart.value = data?.cartLinesRemove?.cart ?? undefined
 
         if (!open.value) toast.add({
-            title: t('cart.toast.remove'),
+            title: 'Item removed from cart.',
             actions: [
-                { label: t('cart.toast.view'), onClick: () => { open.value = true } },
+                { label: 'View cart', onClick: () => { open.value = true } },
             ],
             color: 'success',
         })
     }).catch(() => toast.add({
-        title: t('cart.toast.error.remove'),
-        description: t('cart.toast.error.tryAgain'),
+        title: 'Could not remove item from cart.',
+        description: 'Please try again.',
         color: 'error',
     })).finally(() => setLoading(false))
 

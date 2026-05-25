@@ -13,7 +13,6 @@ const emit = defineEmits<{
 }>()
 
 const { language, country } = useLocalization()
-const { locale } = useI18n()
 const { add } = useCart()
 
 const handle = computed(() => selectedVariant.value?.product.handle)
@@ -23,8 +22,8 @@ const state = reactive({
     selectedOptions: selectedVariant.value?.selectedOptions,
 })
 
-const { data } = await useStorefrontData(`product-options-${locale.value}-${handle.value}`, `#graphql
-    query FetchProductOptions($handle: String, $language: LanguageCode, $country: CountryCode, $selectedOptions: [SelectedOptionInput!]) 
+const { data } = await useStorefrontData(`product-options-${handle.value}`, `#graphql
+    query FetchProductOptions($handle: String, $language: LanguageCode, $country: CountryCode, $selectedOptions: [SelectedOptionInput!])
     @inContext(language: $language, country: $country) {
         product(handle: $handle) {
             options(first: 250) {
@@ -122,7 +121,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
                     :disabled="!selectedVariant || loading"
                     :trailing-icon="loading ? 'i-lucide-loader-circle' : 'i-lucide-shopping-bag'"
                     :ui="{ trailingIcon: loading ? 'animate-spin size-5' : 'size-5' }"
-                    :label="$t('product.add')"
+                    label="Add"
                 />
             </div>
         </UForm>

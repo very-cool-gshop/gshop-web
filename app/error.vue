@@ -8,17 +8,12 @@ const props = defineProps<{
 }>()
 
 const { shopify: { shopName } } = useAppConfig()
-const { language } = useLocalization()
 const { id, init, get } = useCart()
-const localePath = useLocalePath()
-
-const lang = computed(() => locales[language.value].code)
-const dir = computed(() => locales[language.value].dir)
 
 useHead({
     htmlAttrs: {
-        lang,
-        dir,
+        lang: 'en',
+        dir: 'ltr',
     },
     title: shopName,
 })
@@ -27,7 +22,7 @@ watch(id, value => !value ? init().then(get) : get(), { immediate: true })
 </script>
 
 <template>
-    <UApp :locale="locales[language]">
+    <UApp :locale="locales.en">
         <NuxtLayout>
             <UError
                 :error="props.error"
@@ -35,11 +30,9 @@ watch(id, value => !value ? init().then(get) : get(), { immediate: true })
             >
                 <template #links>
                     <UButton
-                        @click="clearError({
-                            redirect: localePath('/'),
-                        })"
+                        @click="clearError({ redirect: '/' })"
                     >
-                        {{ $t('error.home') }}
+                        Back to Homepage
                     </UButton>
                 </template>
             </UError>

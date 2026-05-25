@@ -6,14 +6,12 @@ definePageMeta({
 })
 
 const { shopify: { shopName } } = useAppConfig()
-const localePath = useLocalePath()
-const { locale } = useI18n()
 const route = useRoute()
 
 const handle = computed(() => route.params.handle as string)
 const article = computed(() => route.params.article as string)
 
-const { data: blog, error } = await useStorefrontData(`article-${locale.value}-${handle.value}`, `#graphql
+const { data: blog, error } = await useStorefrontData(`article-${handle.value}`, `#graphql
     query FetchBlogArticle($handle: String!, $article: String!) {
         blog(handle: $handle) {
             title
@@ -37,14 +35,14 @@ const articleData = computed(() => blog.value?.articleByHandle)
 if (!articleData.value || error.value) {
     throw createError({
         status: 404,
-        statusText: `${$t('error.notFound')}: ${route.fullPath}`,
-        message: error.value?.message || $t('error.article'),
+        statusText: `Page not found: ${route.fullPath}`,
+        message: error.value?.message || 'Article not found',
     })
 }
 
 useSeoMeta({
     title: `${articleData.value?.seo?.title ?? articleData.value?.title} | ${shopName}`,
-    description: articleData.value?.seo?.description ?? $t('seo.description'),
+    description: articleData.value?.seo?.description ?? 'Welcome to our demo store! Explore our collections and find the perfect items for you.',
 })
 </script>
 
@@ -53,8 +51,8 @@ useSeoMeta({
         <UBreadcrumb
             :items="[
                 { label: 'Blog' },
-                { label: blog?.title, to: localePath(`/blog/${handle}`) },
-                { label: articleData?.title, to: localePath(`/blog/${handle}/${article}`) },
+                { label: blog?.title, to: `/blog/${handle}` },
+                { label: articleData?.title, to: `/blog/${handle}/${article}` },
             ]"
             class="mb-8"
         />

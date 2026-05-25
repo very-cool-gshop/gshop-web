@@ -23,8 +23,8 @@ const open = ref(false)
             color="neutral"
             variant="ghost"
             trailing-icon="i-lucide-shopping-bag"
-            :label="$t('product.choose')"
-            :aria-label="$t('product.choose')"
+            label="Choose"
+            aria-label="Choose"
             :ui="{
                 trailingIcon: 'size-5',
                 label: [

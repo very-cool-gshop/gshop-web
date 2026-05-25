@@ -5,11 +5,10 @@ const props = defineProps<{
 
 const { shopify: { shopName } } = useAppConfig()
 const { params } = useCollection()
-const { locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
-const key = computed(() => `collection-${locale.value}-${props.handle}-products`)
+const key = computed(() => `collection-${props.handle}-products`)
 
 const { data: collection, status } = await useStorefrontData(key, `#graphql
     query FetchCollectionProducts(
@@ -89,11 +88,6 @@ const loadNext = async () => {
     } })
 }
 
-watch(locale, () => {
-    route.query.first = null
-    route.query.last = null
-})
-
 watch(() => collection.value?.products.pageInfo, async () => await nextTick().then(() =>
     window.scrollTo({ top: 0, behavior: 'smooth' })), { deep: true })
 </script>
@@ -118,7 +112,7 @@ watch(() => collection.value?.products.pageInfo, async () => await nextTick().th
                     icon="i-lucide-arrow-up"
                     @click="loadPrevious"
                 >
-                    {{ $t('pagination.previous') }}
+                    Load previous
                 </UButton>
             </div>
 
@@ -144,7 +138,7 @@ watch(() => collection.value?.products.pageInfo, async () => await nextTick().th
                     icon="i-lucide-arrow-down"
                     @click="loadNext"
                 >
-                    {{ $t('pagination.next') }}
+                    Load next
                 </UButton>
             </div>
 
@@ -152,7 +146,7 @@ watch(() => collection.value?.products.pageInfo, async () => await nextTick().th
                 v-if="status === 'pending'"
                 class="flex justify-center pt-8"
             >
-                {{ $t('collection.products.loading') }}
+                Loading products...
             </div>
 
             <div
@@ -166,7 +160,7 @@ watch(() => collection.value?.products.pageInfo, async () => await nextTick().th
                     />
 
                     <p class="text-xl text-dimmed">
-                        {{ $t('collection.products.notFound') }}
+                        No products found.
                     </p>
                 </div>
 
@@ -174,7 +168,7 @@ watch(() => collection.value?.products.pageInfo, async () => await nextTick().th
                     variant="subtle"
                     color="primary"
                     class="mt-4"
-                    :label="$t('filters.clear')"
+                    label="Clear Filters"
                     @click="router.push({ query: {} })"
                 />
             </div>

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-const localePath = useLocalePath()
-
 const { data: logo } = await useStorefrontData('logo', `#graphql
     query FetchLogo {
         shop {
@@ -21,7 +19,7 @@ const { data: logo } = await useStorefrontData('logo', `#graphql
 
 <template>
     <NuxtLink
-        :to="localePath('/')"
+        to="/"
         class="flex items-center gap-3 mr-4 shrink-0"
     >
         <NuxtImg

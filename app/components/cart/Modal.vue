@@ -8,8 +8,8 @@ watch(() => route.path, () => open.value = false)
 <template>
     <USlideover
         v-model:open="open"
-        :title="$t('cart.title')"
-        :description="$t('cart.description')"
+        title="Cart"
+        description="Review your selected items"
         :ui="{ description: 'sr-only', body: 'flex flex-col gap-y-6' }"
     >
         <div class="relative">
@@ -17,7 +17,7 @@ watch(() => route.path, () => open.value = false)
                 icon="i-lucide-shopping-cart"
                 variant="ghost"
                 color="neutral"
-                :label="$t('cart.open')"
+                label="Open Cart"
                 :ui="{
                     label: 'sr-only',
                     base: 'px-1.5 lg:px-2',
@@ -54,7 +54,7 @@ watch(() => route.path, () => open.value = false)
                 v-if="lines.length === 0"
                 class="my-auto text-center"
             >
-                {{ $t('cart.empty') }}
+                Your cart is empty.
             </p>
         </template>
 
@@ -68,7 +68,7 @@ watch(() => route.path, () => open.value = false)
             >
                 <div class="flex items-center gap-2">
                     <p class="font-medium inline-block">
-                        {{ $t('cart.subtotal') }}:
+                        Subtotal:
                         <ProductPrice :price="total" />
                     </p>
 
@@ -83,7 +83,7 @@ watch(() => route.path, () => open.value = false)
                     variant="ghost"
                     color="neutral"
                     :to="checkoutUrl"
-                    :label="$t('cart.checkout')"
+                    label="Checkout"
                     size="xl"
                     trailing-icon="i-lucide-arrow-right"
                     :ui="{

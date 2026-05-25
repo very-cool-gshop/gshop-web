@@ -3,7 +3,6 @@ export default defineNuxtConfig({
     modules: [
         '@nuxtjs/shopify',
         '@nuxtjs/critters',
-        '@nuxtjs/i18n',
         '@nuxt/image',
         '@nuxt/ui',
     ],
@@ -51,30 +50,6 @@ export default defineNuxtConfig({
             {
                 name: 'Source Sans 3',
                 provider: 'google',
-            },
-        ],
-    },
-
-    i18n: {
-        strategy: 'prefix_except_default',
-
-        defaultLocale: 'en-us',
-
-        locales: [
-            {
-                code: 'en-us',
-                language: 'en',
-                file: 'en.json',
-            },
-            {
-                code: 'de-de',
-                language: 'de',
-                file: 'de.json',
-            },
-            {
-                code: 'de-at',
-                language: 'de',
-                file: 'de.json',
             },
         ],
     },

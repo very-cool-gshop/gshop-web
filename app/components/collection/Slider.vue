@@ -16,9 +16,8 @@ const props = defineProps<{
 }>()
 
 const { language, country } = useLocalization()
-const { locale } = useI18n()
 
-const key = computed(() => `product-slider-${props.handle}-${locale.value}`)
+const key = computed(() => `product-slider-${props.handle}`)
 
 const first = computed(() => props.first ? Number(props.first) : undefined)
 const last = computed(() => props.last ? Number(props.last) : undefined)

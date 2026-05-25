@@ -50,7 +50,7 @@ watch(() => route.query, value => Object.keys(value).length === 0 ? filtersKey.v
         <div class="lg:sticky lg:top-24">
             <div class="flex justify-between items-center mb-4">
                 <p class="leading-8 text-xl font-bold">
-                    {{ $t('filters.title') }}
+                    Filters
                 </p>
 
                 <div
@@ -61,7 +61,7 @@ watch(() => route.query, value => Object.keys(value).length === 0 ? filtersKey.v
                         variant="ghost"
                         color="primary"
                         class="ms-4"
-                        :label="$t('filters.clear')"
+                        label="Clear Filters"
                         @click="resetFilters"
                     />
 

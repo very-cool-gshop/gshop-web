@@ -4,13 +4,11 @@ definePageMeta({
 })
 
 const { shopify: { shopName } } = useAppConfig()
-const localePath = useLocalePath()
-const { locale } = useI18n()
 const route = useRoute()
 
 const handle = computed(() => route.params.handle as string)
 
-const key = computed(() => `collection-${locale.value}-${handle.value}`)
+const key = computed(() => `collection-${handle.value}`)
 
 const { data: collection, error } = await useStorefrontData(key, `#graphql
     query FetchCollection(
@@ -36,15 +34,15 @@ const { data: collection, error } = await useStorefrontData(key, `#graphql
 if (!collection.value || error.value) {
     throw createError({
         status: 404,
-        statusText: `${$t('error.notFound')}: ${route.fullPath}`,
-        message: error.value?.message || $t('error.collection'),
+        statusText: `Page not found: ${route.fullPath}`,
+        message: error.value?.message || 'Collection not found',
         fatal: true,
     })
 }
 
 useSeoMeta({
     title: `${collection.value?.title} | ${shopName}`,
-    description: collection.value?.description ?? $t('seo.description'),
+    description: collection.value?.description ?? 'Welcome to our demo store! Explore our collections and find the perfect items for you.',
 })
 </script>
 
@@ -53,7 +51,7 @@ useSeoMeta({
         <UBreadcrumb
             :items="[
                 { label: 'Collections' },
-                { label: collection?.title, to: localePath(`/collection/${handle}`) },
+                { label: collection?.title, to: `/collection/${handle}` },
             ]"
             class="mb-6 lg:mb-8"
         />

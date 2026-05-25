@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import type { ProductFieldsFragment } from '#shopify/storefront'
+
 definePageMeta({
     validate: route => typeof route.params.handle === 'string',
 })
 
 const { shopify: { shopName } } = useAppConfig()
 const { language, country } = useLocalization()
-const localePath = useLocalePath()
-const { locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
 
 const handle = computed(() => route.params.handle as string)
 
-const { data, error } = await useStorefrontData(`product-${locale.value}-${handle.value}`, `#graphql
-    query FetchProduct($handle: String, $language: LanguageCode, $country: CountryCode) 
+const { data, error } = await useStorefrontData(`product-${handle.value}`, `#graphql
+    query FetchProduct($handle: String, $language: LanguageCode, $country: CountryCode)
     @inContext(language: $language, country: $country) {
         product(handle: $handle) {
             ...ProductFields
@@ -38,27 +38,29 @@ const { data, error } = await useStorefrontData(`product-${locale.value}-${handl
 if (!data.value?.product || error.value) {
     throw createError({
         status: 404,
-        statusText: `${$t('error.notFound')}: ${route.fullPath}`,
-        message: error.value?.message || $t('error.product'),
+        statusText: `Page not found: ${route.fullPath}`,
+        message: error.value?.message || 'Product not found',
     })
 }
 
 const product = computed(() => data.value?.product)
 const recommendations = computed(() => data.value?.productRecommendations)
 
-const selectedVariant = ref(flattenConnection(data.value?.product?.variants)
-    .find(variant => variant.id.replace('gid://shopify/ProductVariant/', '') === route.query.variantId)
-    ?? product.value?.selectedOrFirstAvailableVariant)
+const selectedVariant = ref(
+    (flattenConnection(data.value?.product?.variants) as NonNullable<typeof product.value>['selectedOrFirstAvailableVariant'][])
+        .find(v => v?.id.replace('gid://shopify/ProductVariant/', '') === route.query.variantId)
+    ?? product.value?.selectedOrFirstAvailableVariant
+)
 
 useSeoMeta({
     title: `${product.value?.title} | ${shopName}`,
-    description: product.value?.description ?? $t('seo.description'),
+    description: product.value?.description ?? 'Welcome to our demo store! Explore our collections and find the perfect items for you.',
 })
 
 watch(selectedVariant, (variant) => {
     if (variant) {
         router.push({
-            path: localePath(`/product/${variant.product.handle}`),
+            path: `/product/${variant.product.handle}`,
             query: { variantId: variant.id.replace('gid://shopify/ProductVariant/', '') },
         })
     }
@@ -70,7 +72,7 @@ watch(selectedVariant, (variant) => {
         <UBreadcrumb
             :items="[
                 { label: 'Products' },
-                { label: product?.title, to: localePath(`/product/${handle}`) },
+                { label: product?.title, to: `/product/${handle}` },
             ]"
             class="mb-6 lg:mb-8"
         />
@@ -104,7 +106,7 @@ watch(selectedVariant, (variant) => {
 
         <div v-if="recommendations">
             <h2 class="text-3xl text-gray-900 font-bold mb-6 lg:mb-8 lg:text-4xl">
-                {{ $t('product.recommendations') }}
+                You may also like
             </h2>
 
             <div class="mb-12 sm:px-12 lg:mb-16">
@@ -116,7 +118,7 @@ watch(selectedVariant, (variant) => {
                     arrows
                     loop
                 >
-                    <ProductCard :product="item" />
+                    <ProductCard :product="(item as ProductFieldsFragment)" />
                 </UCarousel>
             </div>
         </div>

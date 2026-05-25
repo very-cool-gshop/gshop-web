@@ -1,9 +1,7 @@
 <script setup lang="ts">
 const { language, country } = useLocalization()
-const localePath = useLocalePath()
-const { locale } = useI18n()
 
-const { data: collections } = await useStorefrontData(`collections-${locale.value}`, `#graphql
+const { data: collections } = await useStorefrontData('collections', `#graphql
     query FetchCollections($first: Int, $language: LanguageCode, $country: CountryCode)
     @inContext(language: $language, country: $country) {
         collections(
@@ -34,7 +32,7 @@ const { data: collections } = await useStorefrontData(`collections-${locale.valu
             class="mb-4"
             :title="collection.title"
             :description="collection.description"
-            :to="localePath(`/collection/${collection.handle}`)"
+            :to="`/collection/${collection.handle}`"
             reverse
         >
             <NuxtImg
