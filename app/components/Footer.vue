@@ -1,28 +1,30 @@
 <script setup lang="ts">
 import type { NavigationMenuItem } from '#ui/types'
 
-const items = computed<NavigationMenuItem[]>(() => [
-    {
-        to: 'https://github.com/nuxt-modules/shopify',
-        label: 'Github',
-    },
-    {
-        to: 'https://nuxt.com/modules/shopify',
-        label: 'Module Page',
-    },
-    {
-        to: 'https://shopify.nuxtjs.org',
-        label: 'Documentation',
-    },
-    {
-        to: 'https://npmx.dev/package/@nuxtjs/shopify',
-        label: 'NPM Package',
-    },
-].map(item => ({
-    ...item,
-    target: '_blank',
-    icon: 'i-lucide-minus',
-})))
+const items = computed<NavigationMenuItem[]>(() =>
+    [
+        {
+            to: 'https://github.com/nuxt-modules/shopify',
+            label: 'Github',
+        },
+        {
+            to: 'https://nuxt.com/modules/shopify',
+            label: 'Module Page',
+        },
+        {
+            to: 'https://shopify.nuxtjs.org',
+            label: 'Documentation',
+        },
+        {
+            to: 'https://npmx.dev/package/@nuxtjs/shopify',
+            label: 'NPM Package',
+        },
+    ].map((item) => ({
+        ...item,
+        target: '_blank',
+        icon: 'i-lucide-minus',
+    })),
+)
 </script>
 
 <template>
@@ -52,9 +54,7 @@ const items = computed<NavigationMenuItem[]>(() => [
         </template>
 
         <template #left>
-            <p class="text-muted text-sm">
-                Published under the MIT License.
-            </p>
+            <p class="text-muted text-sm">Published under the MIT License.</p>
         </template>
 
         <template #right>

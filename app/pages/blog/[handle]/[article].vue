@@ -1,17 +1,19 @@
 <script setup lang="ts">
 definePageMeta({
-    validate: route =>
-        typeof route.params.handle === 'string'
-        && typeof route.params.article === 'string',
+    validate: (route) => typeof route.params.handle === 'string' && typeof route.params.article === 'string',
 })
 
-const { shopify: { shopName } } = useAppConfig()
+const {
+    shopify: { shopName },
+} = useAppConfig()
 const route = useRoute()
 
 const handle = computed(() => route.params.handle as string)
 const article = computed(() => route.params.article as string)
 
-const { data: blog, error } = await useStorefrontData(`article-${handle.value}`, `#graphql
+const { data: blog, error } = await useStorefrontData(
+    `article-${handle.value}`,
+    `#graphql
     query FetchBlogArticle($handle: String!, $article: String!) {
         blog(handle: $handle) {
             title
@@ -21,14 +23,16 @@ const { data: blog, error } = await useStorefrontData(`article-${handle.value}`,
         }
     }
     ${ARTICLE_FRAGMENT}
-`, {
-    variables: {
-        handle: handle.value,
-        article: article.value,
+`,
+    {
+        variables: {
+            handle: handle.value,
+            article: article.value,
+        },
+        transform: (data) => data?.blog,
+        cache: 'long',
     },
-    transform: data => data?.blog,
-    cache: 'long',
-})
+)
 
 const articleData = computed(() => blog.value?.articleByHandle)
 
@@ -42,7 +46,9 @@ if (!articleData.value || error.value) {
 
 useSeoMeta({
     title: `${articleData.value?.seo?.title ?? articleData.value?.title} | ${shopName}`,
-    description: articleData.value?.seo?.description ?? 'Welcome to our demo store! Explore our collections and find the perfect items for you.',
+    description:
+        articleData.value?.seo?.description ??
+        'Welcome to our demo store! Explore our collections and find the perfect items for you.',
 })
 </script>
 
@@ -57,9 +63,7 @@ useSeoMeta({
             class="mb-8"
         />
 
-        <div
-            class="prose lg:prose-lg max-w-none"
-        >
+        <div class="prose lg:prose-lg max-w-none">
             <h1>
                 {{ articleData?.title }}
             </h1>

@@ -2,17 +2,21 @@
 import type { ProductFieldsFragment } from '#shopify/storefront'
 
 definePageMeta({
-    validate: route => typeof route.params.handle === 'string',
+    validate: (route) => typeof route.params.handle === 'string',
 })
 
-const { shopify: { shopName } } = useAppConfig()
+const {
+    shopify: { shopName },
+} = useAppConfig()
 const { language, country } = useLocalization()
 const router = useRouter()
 const route = useRoute()
 
 const handle = computed(() => route.params.handle as string)
 
-const { data, error } = await useStorefrontData(`product-${handle.value}`, `#graphql
+const { data, error } = await useStorefrontData(
+    `product-${handle.value}`,
+    `#graphql
     query FetchProduct($handle: String, $language: LanguageCode, $country: CountryCode)
     @inContext(language: $language, country: $country) {
         product(handle: $handle) {
@@ -26,14 +30,18 @@ const { data, error } = await useStorefrontData(`product-${handle.value}`, `#gra
     ${IMAGE_FRAGMENT}
     ${PRICE_FRAGMENT}
     ${PRODUCT_FRAGMENT}
-`, {
-    variables: computed(() => productInputSchema.parse({
-        handle: handle.value,
-        language: language.value,
-        country: country.value,
-    })),
-    cache: 'long',
-})
+`,
+    {
+        variables: computed(() =>
+            productInputSchema.parse({
+                handle: handle.value,
+                language: language.value,
+                country: country.value,
+            }),
+        ),
+        cache: 'long',
+    },
+)
 
 if (!data.value?.product || error.value) {
     throw createError({
@@ -47,14 +55,19 @@ const product = computed(() => data.value?.product)
 const recommendations = computed(() => data.value?.productRecommendations)
 
 const selectedVariant = ref(
-    (flattenConnection(data.value?.product?.variants) as NonNullable<typeof product.value>['selectedOrFirstAvailableVariant'][])
-        .find(v => v?.id.replace('gid://shopify/ProductVariant/', '') === route.query.variantId)
-    ?? product.value?.selectedOrFirstAvailableVariant
+    (
+        flattenConnection(data.value?.product?.variants) as NonNullable<
+            typeof product.value
+        >['selectedOrFirstAvailableVariant'][]
+    ).find((v) => v?.id.replace('gid://shopify/ProductVariant/', '') === route.query.variantId) ??
+        product.value?.selectedOrFirstAvailableVariant,
 )
 
 useSeoMeta({
     title: `${product.value?.title} | ${shopName}`,
-    description: product.value?.description ?? 'Welcome to our demo store! Explore our collections and find the perfect items for you.',
+    description:
+        product.value?.description ??
+        'Welcome to our demo store! Explore our collections and find the perfect items for you.',
 })
 
 watch(selectedVariant, (variant) => {
@@ -70,17 +83,11 @@ watch(selectedVariant, (variant) => {
 <template>
     <UContainer class="py-6 pb-12 lg:py-8 lg:pb-16">
         <UBreadcrumb
-            :items="[
-                { label: 'Products' },
-                { label: product?.title, to: `/product/${handle}` },
-            ]"
+            :items="[{ label: 'Products' }, { label: product?.title, to: `/product/${handle}` }]"
             class="mb-6 lg:mb-8"
         />
 
-        <div
-            v-if="product && selectedVariant"
-            class="mb-12 lg:grid lg:grid-cols-12 lg:mb-16"
-        >
+        <div v-if="product && selectedVariant" class="mb-12 lg:grid lg:grid-cols-12 lg:mb-16">
             <ProductGallery
                 ref="carousel"
                 :selected-variant="selectedVariant"
@@ -91,11 +98,7 @@ watch(selectedVariant, (variant) => {
 
             <div class="lg:col-span-4 lg:col-start-8">
                 <div class="lg:sticky lg:top-[calc(var(--ui-header-height)+3rem)]">
-                    <ProductConfigurator
-                        v-model="selectedVariant"
-                        :product="product"
-                        class="mb-12 lg:mb-16"
-                    />
+                    <ProductConfigurator v-model="selectedVariant" :product="product" class="mb-12 lg:mb-16" />
 
                     <p class="mb-6 lg:text-lg lg:mb-8">
                         {{ product.description }}
@@ -105,9 +108,7 @@ watch(selectedVariant, (variant) => {
         </div>
 
         <div v-if="recommendations">
-            <h2 class="text-3xl text-gray-900 font-bold mb-6 lg:mb-8 lg:text-4xl">
-                You may also like
-            </h2>
+            <h2 class="text-3xl text-gray-900 font-bold mb-6 lg:mb-8 lg:text-4xl">You may also like</h2>
 
             <div class="mb-12 sm:px-12 lg:mb-16">
                 <UCarousel
@@ -118,7 +119,7 @@ watch(selectedVariant, (variant) => {
                     arrows
                     loop
                 >
-                    <ProductCard :product="(item as ProductFieldsFragment)" />
+                    <ProductCard :product="item as ProductFieldsFragment" />
                 </UCarousel>
             </div>
         </div>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { data: logo } = await useStorefrontData('logo', `#graphql
+const { data: logo } = await useStorefrontData(
+    'logo',
+    `#graphql
     query FetchLogo {
         shop {
             brand {
@@ -12,16 +14,15 @@ const { data: logo } = await useStorefrontData('logo', `#graphql
         }
     }
     ${IMAGE_FRAGMENT}
-`, {
-    transform: data => data?.shop?.brand?.logo?.image,
-})
+`,
+    {
+        transform: (data) => data?.shop?.brand?.logo?.image,
+    },
+)
 </script>
 
 <template>
-    <NuxtLink
-        to="/"
-        class="flex items-center gap-3 mr-4 shrink-0"
-    >
+    <NuxtLink to="/" class="flex items-center gap-3 mr-4 shrink-0">
         <NuxtImg
             :src="logo?.url"
             :alt="logo?.altText || 'Nuxt Shopify Store Logo'"

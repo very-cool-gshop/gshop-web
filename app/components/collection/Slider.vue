@@ -19,16 +19,18 @@ const { language, country } = useLocalization()
 
 const key = computed(() => `product-slider-${props.handle}`)
 
-const first = computed(() => props.first ? Number(props.first) : undefined)
-const last = computed(() => props.last ? Number(props.last) : undefined)
-const after = computed(() => props.after ? String(props.after) : undefined)
-const before = computed(() => props.before ? String(props.before) : undefined)
+const first = computed(() => (props.first ? Number(props.first) : undefined))
+const last = computed(() => (props.last ? Number(props.last) : undefined))
+const after = computed(() => (props.after ? String(props.after) : undefined))
+const before = computed(() => (props.before ? String(props.before) : undefined))
 
-const sortKey = computed(() => props.sortKey ? String(props.sortKey) : undefined)
-const reverse = computed(() => props.reverse ? Boolean(props.reverse) : undefined)
-const filters = computed(() => props.filters ? props.filters : undefined)
+const sortKey = computed(() => (props.sortKey ? String(props.sortKey) : undefined))
+const reverse = computed(() => (props.reverse ? Boolean(props.reverse) : undefined))
+const filters = computed(() => (props.filters ? props.filters : undefined))
 
-const { data: products } = await useStorefrontData(key, `#graphql
+const { data: products } = await useStorefrontData(
+    key,
+    `#graphql
     query FetchSliderCollection(
         $handle: String,
         $after: String,
@@ -53,24 +55,30 @@ const { data: products } = await useStorefrontData(key, `#graphql
     ${IMAGE_FRAGMENT}
     ${PRICE_FRAGMENT}
     ${PRODUCT_CONNECTION_FRAGMENT}
-`, {
-    variables: z.object({
-        handle: z.string(),
-    }).extend(productConnectionParamsSchema.shape).extend(localizationParamsSchema.shape).parse({
-        handle: props.handle,
-        first: first.value,
-        last: last.value,
-        after: after.value,
-        before: before.value,
-        sortKey: sortKey.value,
-        reverse: reverse.value,
-        filters: filters.value,
-        language: language.value,
-        country: country.value,
-    }),
-    transform: data => flattenConnection(data?.collection?.products),
-    cache: 'long',
-})
+`,
+    {
+        variables: z
+            .object({
+                handle: z.string(),
+            })
+            .extend(productConnectionParamsSchema.shape)
+            .extend(localizationParamsSchema.shape)
+            .parse({
+                handle: props.handle,
+                first: first.value,
+                last: last.value,
+                after: after.value,
+                before: before.value,
+                sortKey: sortKey.value,
+                reverse: reverse.value,
+                filters: filters.value,
+                language: language.value,
+                country: country.value,
+            }),
+        transform: (data) => flattenConnection(data?.collection?.products),
+        cache: 'long',
+    },
+)
 </script>
 
 <template>
@@ -82,9 +90,6 @@ const { data: products } = await useStorefrontData(key, `#graphql
         arrows
         loop
     >
-        <ProductCard
-            :product="product"
-            :loading="index < 3 ? props.loading : 'lazy'"
-        />
+        <ProductCard :product="product" :loading="index < 3 ? props.loading : 'lazy'" />
     </UCarousel>
 </template>

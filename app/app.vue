@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import * as locales from '@nuxt/ui/locale'
 
-const { shopify: { shopName } } = useAppConfig()
+const {
+    shopify: { shopName },
+} = useAppConfig()
 const { id, init, get } = useCart()
 
 useHead({
@@ -25,7 +27,7 @@ useHead({
     ],
 })
 
-watch(id, value => !value ? init().then(get) : get(), { immediate: true })
+watch(id, (value) => (!value ? init().then(get) : get()), { immediate: true })
 </script>
 
 <template>

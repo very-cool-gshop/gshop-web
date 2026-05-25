@@ -8,11 +8,12 @@ export const queryToFilters = (query: LocationQuery) => {
         const filterKey = key.split('.').at(-1) ?? key
 
         if (Array.isArray(value)) {
-            value.forEach(v => filters.push({
-                [filterKey]: v === 'true' || v === 'false' ? JSON.parse(v) : v,
-            }))
-        }
-        else {
+            value.forEach((v) =>
+                filters.push({
+                    [filterKey]: v === 'true' || v === 'false' ? JSON.parse(v) : v,
+                }),
+            )
+        } else {
             filters.push({
                 [filterKey]: JSON.parse(String(value)),
             })
@@ -31,12 +32,10 @@ export const filtersToQuery = (filters: ProductFilter[]) => {
         if (filters.length === 0) {
             const { [`filter.${name}`]: _, ...restQuery } = query
             query = restQuery
-        }
-        else if (filters.length === 1) {
+        } else if (filters.length === 1) {
             query[`filter.${name}`] = JSON.stringify(filters[0]?.[name])
-        }
-        else {
-            query[`filter.${name}`] = filters.map(f => String(f[name]))
+        } else {
+            query[`filter.${name}`] = filters.map((f) => String(f[name]))
         }
     })
 

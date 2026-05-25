@@ -15,16 +15,16 @@ const sliderImages = computed(() => {
     if (props.selectedVariant?.image) {
         const variantImage = props.selectedVariant.image
 
-        return [
-            variantImage,
-            ...images.value.filter(image => image.url !== variantImage.url),
-        ]
+        return [variantImage, ...images.value.filter((image) => image.url !== variantImage.url)]
     }
 
     return images.value
 })
 
-watch(() => props.selectedVariant, () => carousel.value?.emblaApi?.scrollTo(0))
+watch(
+    () => props.selectedVariant,
+    () => carousel.value?.emblaApi?.scrollTo(0),
+)
 </script>
 
 <template>
@@ -57,10 +57,7 @@ watch(() => props.selectedVariant, () => carousel.value?.emblaApi?.scrollTo(0))
             loading="eager"
         />
 
-        <div
-            v-if="props.thumbnails && images.length > 1"
-            class="hidden lg:grid grid-cols-12 gap-8 mb-6 lg:mb-8"
-        >
+        <div v-if="props.thumbnails && images.length > 1" class="hidden lg:grid grid-cols-12 gap-8 mb-6 lg:mb-8">
             <ProductImage
                 v-for="(image, index) in images"
                 :key="image.url"

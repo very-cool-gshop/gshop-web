@@ -17,13 +17,15 @@ const state = defineModel<string>()
             fieldset: 'flex-row flex-wrap gap-2',
             item: 'overflow-hidden rounded-full p-0.5',
         }"
-        :items="props.option.optionValues.map(value => ({ label: value.name, value: value.name }))"
+        :items="props.option.optionValues.map((value) => ({ label: value.name, value: value.name }))"
     >
         <template #label="{ item }">
             <span
                 class="block w-8 h-8 rounded-full"
                 :style="{
-                    background: props.option.optionValues.find(value => value.name === item.value)?.swatch?.color ?? undefined,
+                    background:
+                        props.option.optionValues.find((value) => value.name === item.value)?.swatch?.color ??
+                        undefined,
                 }"
             />
         </template>

@@ -20,15 +20,12 @@ const state = reactive<z.infer<typeof schema>>({
     quantity: props.line.quantity,
 })
 
-watch(state, state => update(props.line.id, state.quantity))
+watch(state, (state) => update(props.line.id, state.quantity))
 </script>
 
 <template>
     <UCard :ui="{ body: 'relative flex justify-between gap-8' }">
-        <NuxtLink
-            :to="to"
-            :aria-label="`View product: '${variant.product.title}'`"
-        >
+        <NuxtLink :to="to" :aria-label="`View product: '${variant.product.title}'`">
             <NuxtImg
                 provider="shopify"
                 :src="variant.image?.url"
@@ -40,33 +37,16 @@ watch(state, state => update(props.line.id, state.quantity))
         </NuxtLink>
 
         <div class="h-24 flex flex-col justify-between grow lg:h-28">
-            <NuxtLink
-                :to="to"
-                class="pt-2.5 font-medium"
-            >
-                {{ variant.product.title }} - {{ variant.title }}
-            </NuxtLink>
+            <NuxtLink :to="to" class="pt-2.5 font-medium"> {{ variant.product.title }} - {{ variant.title }} </NuxtLink>
 
             <div class="flex justify-between gap-4">
-                <UForm
-                    :state="state"
-                    :schema="schema"
-                    :validate-on="['change']"
-                >
+                <UForm :state="state" :schema="schema" :validate-on="['change']">
                     <UFormField name="quantity">
-                        <UInputNumber
-                            v-model="state.quantity"
-                            :min="1"
-                            :max="10"
-                            class="w-24"
-                        />
+                        <UInputNumber v-model="state.quantity" :min="1" :max="10" class="w-24" />
                     </UFormField>
                 </UForm>
 
-                <ProductPrice
-                    :price="variant.price"
-                    class="font-semibold leading-8"
-                />
+                <ProductPrice :price="variant.price" class="font-semibold leading-8" />
             </div>
         </div>
 

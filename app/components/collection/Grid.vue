@@ -1,7 +1,9 @@
 <script setup lang="ts">
 const { language, country } = useLocalization()
 
-const { data: collections } = await useStorefrontData('collections', `#graphql
+const { data: collections } = await useStorefrontData(
+    'collections',
+    `#graphql
     query FetchCollections($first: Int, $language: LanguageCode, $country: CountryCode)
     @inContext(language: $language, country: $country) {
         collections(
@@ -13,15 +15,17 @@ const { data: collections } = await useStorefrontData('collections', `#graphql
     ${IMAGE_FRAGMENT}
     ${COLLECTION_FRAGMENT}
     ${COLLECTION_CONNECTION_FRAGMENT}
-`, {
-    variables: connectionParamsSchema.extend(localizationParamsSchema.shape).parse({
-        first: 10,
-        language: language.value,
-        country: country.value,
-    }),
-    transform: data => flattenConnection(data?.collections).filter(c => c.description),
-    cache: 'long',
-})
+`,
+    {
+        variables: connectionParamsSchema.extend(localizationParamsSchema.shape).parse({
+            first: 10,
+            language: language.value,
+            country: country.value,
+        }),
+        transform: (data) => flattenConnection(data?.collections).filter((c) => c.description),
+        cache: 'long',
+    },
+)
 </script>
 
 <template>

@@ -7,7 +7,9 @@ const props = defineProps<{
     error: NuxtError
 }>()
 
-const { shopify: { shopName } } = useAppConfig()
+const {
+    shopify: { shopName },
+} = useAppConfig()
 const { id, init, get } = useCart()
 
 useHead({
@@ -18,22 +20,15 @@ useHead({
     title: shopName,
 })
 
-watch(id, value => !value ? init().then(get) : get(), { immediate: true })
+watch(id, (value) => (!value ? init().then(get) : get()), { immediate: true })
 </script>
 
 <template>
     <UApp :locale="locales.en">
         <NuxtLayout>
-            <UError
-                :error="props.error"
-                :clear="false"
-            >
+            <UError :error="props.error" :clear="false">
                 <template #links>
-                    <UButton
-                        @click="clearError({ redirect: '/' })"
-                    >
-                        Back to Homepage
-                    </UButton>
+                    <UButton @click="clearError({ redirect: '/' })"> Back to Homepage </UButton>
                 </template>
             </UError>
         </NuxtLayout>

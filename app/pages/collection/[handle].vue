@@ -1,16 +1,20 @@
 <script setup lang="ts">
 definePageMeta({
-    validate: route => typeof route.params.handle === 'string',
+    validate: (route) => typeof route.params.handle === 'string',
 })
 
-const { shopify: { shopName } } = useAppConfig()
+const {
+    shopify: { shopName },
+} = useAppConfig()
 const route = useRoute()
 
 const handle = computed(() => route.params.handle as string)
 
 const key = computed(() => `collection-${handle.value}`)
 
-const { data: collection, error } = await useStorefrontData(key, `#graphql
+const { data: collection, error } = await useStorefrontData(
+    key,
+    `#graphql
     query FetchCollection(
         $handle: String,
         $language: LanguageCode,
@@ -23,13 +27,17 @@ const { data: collection, error } = await useStorefrontData(key, `#graphql
     }
     ${COLLECTION_FRAGMENT}
     ${IMAGE_FRAGMENT}
-`, {
-    variables: computed(() => collectionInputSchema.parse({
-        handle: handle.value,
-    })),
-    transform: data => data?.collection,
-    cache: 'long',
-})
+`,
+    {
+        variables: computed(() =>
+            collectionInputSchema.parse({
+                handle: handle.value,
+            }),
+        ),
+        transform: (data) => data?.collection,
+        cache: 'long',
+    },
+)
 
 if (!collection.value || error.value) {
     throw createError({
@@ -42,17 +50,16 @@ if (!collection.value || error.value) {
 
 useSeoMeta({
     title: `${collection.value?.title} | ${shopName}`,
-    description: collection.value?.description ?? 'Welcome to our demo store! Explore our collections and find the perfect items for you.',
+    description:
+        collection.value?.description ??
+        'Welcome to our demo store! Explore our collections and find the perfect items for you.',
 })
 </script>
 
 <template>
     <UContainer class="py-6 lg:py-8">
         <UBreadcrumb
-            :items="[
-                { label: 'Collections' },
-                { label: collection?.title, to: `/collection/${handle}` },
-            ]"
+            :items="[{ label: 'Collections' }, { label: collection?.title, to: `/collection/${handle}` }]"
             class="mb-6 lg:mb-8"
         />
 

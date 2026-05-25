@@ -46,15 +46,8 @@ const open = ref(false)
         />
 
         <template #body>
-            <div
-                v-if="props.product && selectedVariant"
-                class="lg:grid lg:grid-cols-12"
-            >
-                <ProductGallery
-                    :selected-variant="selectedVariant"
-                    :product="props.product"
-                    class="lg:col-span-6"
-                />
+            <div v-if="props.product && selectedVariant" class="lg:grid lg:grid-cols-12">
+                <ProductGallery :selected-variant="selectedVariant" :product="props.product" class="lg:col-span-6" />
 
                 <ProductConfigurator
                     v-model="selectedVariant"

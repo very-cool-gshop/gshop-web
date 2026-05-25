@@ -2,7 +2,10 @@
 const { open, loading, quantity, lines, total, checkoutUrl } = useCart()
 const route = useRoute()
 
-watch(() => route.path, () => open.value = false)
+watch(
+    () => route.path,
+    () => (open.value = false),
+)
 </script>
 
 <template>
@@ -42,20 +45,10 @@ watch(() => route.path, () => open.value = false)
                 leave-from-class="opacity-100"
                 enter-from-class="opacity-0"
             >
-                <CartLineItem
-                    v-for="line in lines"
-                    :key="line.id"
-                    :line="line"
-                    class="shrink-0 duration-300"
-                />
+                <CartLineItem v-for="line in lines" :key="line.id" :line="line" class="shrink-0 duration-300" />
             </TransitionGroup>
 
-            <p
-                v-if="lines.length === 0"
-                class="my-auto text-center"
-            >
-                Your cart is empty.
-            </p>
+            <p v-if="lines.length === 0" class="my-auto text-center">Your cart is empty.</p>
         </template>
 
         <template #footer>
@@ -72,11 +65,7 @@ watch(() => route.path, () => open.value = false)
                         <ProductPrice :price="total" />
                     </p>
 
-                    <Icon
-                        v-if="loading"
-                        name="i-lucide-loader-circle"
-                        class="animate-spin"
-                    />
+                    <Icon v-if="loading" name="i-lucide-loader-circle" class="animate-spin" />
                 </div>
 
                 <UButton

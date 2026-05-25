@@ -1,7 +1,9 @@
 <script setup lang="ts">
 const { language, country } = useLocalization()
 
-const { data: items } = await useStorefrontData('main-menu', `#graphql
+const { data: items } = await useStorefrontData(
+    'main-menu',
+    `#graphql
     query GetNavigation($handle: String!, $language: LanguageCode, $country: CountryCode)
     @inContext(language: $language, country: $country) {
         menu(handle: $handle) {
@@ -9,23 +11,27 @@ const { data: items } = await useStorefrontData('main-menu', `#graphql
         }
     }
     ${MENU_FRAGMENT}
-`, {
-    variables: menuGetInputSchema.parse({
-        handle: 'main-menu',
-        language: language.value,
-        country: country.value,
-    }),
-    transform: data => data.menu?.items?.map(item => ({
-        label: item.title,
-        to: item.resource?.__typename === 'Blog'
-            ? `/blog/${item.resource?.handle}`
-            : item.resource?.__typename === 'Collection'
-                ? `/collection/${item.resource?.handle}`
-                : item.url ?? undefined,
-    })) ?? [],
-    cache: 'long',
-    watch: [language, country],
-})
+`,
+    {
+        variables: menuGetInputSchema.parse({
+            handle: 'main-menu',
+            language: language.value,
+            country: country.value,
+        }),
+        transform: (data) =>
+            data.menu?.items?.map((item) => ({
+                label: item.title,
+                to:
+                    item.resource?.__typename === 'Blog'
+                        ? `/blog/${item.resource?.handle}`
+                        : item.resource?.__typename === 'Collection'
+                          ? `/collection/${item.resource?.handle}`
+                          : (item.url ?? undefined),
+            })) ?? [],
+        cache: 'long',
+        watch: [language, country],
+    },
+)
 </script>
 
 <template>
@@ -34,15 +40,10 @@ const { data: items } = await useStorefrontData('main-menu', `#graphql
             <Logo />
         </template>
 
-        <UNavigationMenu
-            :items="items"
-        />
+        <UNavigationMenu :items="items" />
 
         <template #body>
-            <UNavigationMenu
-                :items="items"
-                orientation="vertical"
-            />
+            <UNavigationMenu :items="items" orientation="vertical" />
         </template>
 
         <template #right>

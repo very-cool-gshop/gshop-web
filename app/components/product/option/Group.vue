@@ -7,26 +7,30 @@ const props = defineProps<{
 
 const selectedOptions = defineModel<SelectedOption[]>()
 
-const optionsToState = (options?: SelectedOption[]) => options?.reduce((acc, option) => {
-    acc[option.name] = option.value
+const optionsToState = (options?: SelectedOption[]) =>
+    options?.reduce(
+        (acc, option) => {
+            acc[option.name] = option.value
 
-    return acc
-}, {} as Record<string, string>) ?? {}
+            return acc
+        },
+        {} as Record<string, string>,
+    ) ?? {}
 
 const stateToOptions = (state: Record<string, string>) =>
     Object.entries(state).map(([name, value]) => ({ name, value }))
 
 const state = reactive(optionsToState(selectedOptions.value))
 
-const onChange = () => selectedOptions.value = stateToOptions(state)
+const onChange = () => (selectedOptions.value = stateToOptions(state))
 
-const isColorSwatchOption = (option?: typeof props.options[number]) =>
-    !!option?.optionValues?.every(value => value.swatch?.color)
+const isColorSwatchOption = (option?: (typeof props.options)[number]) =>
+    !!option?.optionValues?.every((value) => value.swatch?.color)
 
-const isImageSwatchOption = (option?: typeof props.options[number]) =>
-    !!option?.optionValues?.every(value => value.swatch?.image?.previewImage?.url)
+const isImageSwatchOption = (option?: (typeof props.options)[number]) =>
+    !!option?.optionValues?.every((value) => value.swatch?.image?.previewImage?.url)
 
-const getFilterComponent = (option: typeof props.options[number]) => {
+const getFilterComponent = (option: (typeof props.options)[number]) => {
     if (isColorSwatchOption(option)) return resolveComponent('ProductOptionSwatchColor')
     if (isImageSwatchOption(option)) return resolveComponent('ProductOptionSwatchImage')
 
@@ -37,7 +41,7 @@ const getFilterComponent = (option: typeof props.options[number]) => {
 <template>
     <div>
         <UFormField
-            v-for="option in props.options.filter(option => option.optionValues.length > 1)"
+            v-for="option in props.options.filter((option) => option.optionValues.length > 1)"
             :key="option.id"
             :label="option.name"
             :name="option.name"

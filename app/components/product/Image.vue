@@ -15,11 +15,12 @@ const imgLoading = ref(props.loading === 'eager' ? false : true)
 
 const url = computed(() => props.image?.url)
 
-const handleImageLoad = () => requestAnimationFrame(() => {
-    imgLoading.value = false
+const handleImageLoad = () =>
+    requestAnimationFrame(() => {
+        imgLoading.value = false
 
-    emits('load')
-})
+        emits('load')
+    })
 </script>
 
 <template>

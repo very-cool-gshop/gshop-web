@@ -22,7 +22,9 @@ const state = reactive({
     selectedOptions: selectedVariant.value?.selectedOptions,
 })
 
-const { data } = await useStorefrontData(`product-options-${handle.value}`, `#graphql
+const { data } = await useStorefrontData(
+    `product-options-${handle.value}`,
+    `#graphql
     query FetchProductOptions($handle: String, $language: LanguageCode, $country: CountryCode, $selectedOptions: [SelectedOptionInput!])
     @inContext(language: $language, country: $country) {
         product(handle: $handle) {
@@ -39,24 +41,31 @@ const { data } = await useStorefrontData(`product-options-${handle.value}`, `#gr
     ${PRICE_FRAGMENT}
     ${PRODUCT_VARIANT_FRAGMENT}
     ${PRODUCT_OPTION_FRAGMENT}
-`, {
-    variables: computed(() => productInputSchema.parse({
-        handle: handle.value,
-        language: language.value,
-        country: country.value,
-        selectedOptions: state.selectedOptions,
-    })),
-    transform: value => value.product,
-    watch: [() => state.selectedOptions],
-    cache: 'long',
-    lazy: true,
-})
+`,
+    {
+        variables: computed(() =>
+            productInputSchema.parse({
+                handle: handle.value,
+                language: language.value,
+                country: country.value,
+                selectedOptions: state.selectedOptions,
+            }),
+        ),
+        transform: (value) => value.product,
+        watch: [() => state.selectedOptions],
+        cache: 'long',
+        lazy: true,
+    },
+)
 
 const loading = ref(false)
 
 const product = computed(() => data.value ?? props.product)
 
-watch(() => data.value?.selectedOrFirstAvailableVariant, variant => selectedVariant.value = variant ?? undefined)
+watch(
+    () => data.value?.selectedOrFirstAvailableVariant,
+    (variant) => (selectedVariant.value = variant ?? undefined),
+)
 
 const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
     if (!selectedVariant.value) return
@@ -87,11 +96,7 @@ const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
 
         <USeparator class="mb-6 lg:mb-8" />
 
-        <UForm
-            v-if="product"
-            :state="state"
-            @submit="onSubmit"
-        >
+        <UForm v-if="product" :state="state" @submit="onSubmit">
             <ProductOptionGroup
                 v-model="state.selectedOptions"
                 :options="product.options"
@@ -99,19 +104,8 @@ const onSubmit = async (event: FormSubmitEvent<typeof state>) => {
             />
 
             <div class="flex justify-between items-center">
-                <UFormField
-                    name="quantity"
-                    label="Quantity"
-                    class="-mt-1"
-                    :ui="{ label: 'hidden' }"
-                >
-                    <UInputNumber
-                        v-model="state.quantity"
-                        :min="1"
-                        :max="10"
-                        class="w-24 lg:w-28"
-                        size="xl"
-                    />
+                <UFormField name="quantity" label="Quantity" class="-mt-1" :ui="{ label: 'hidden' }">
+                    <UInputNumber v-model="state.quantity" :min="1" :max="10" class="w-24 lg:w-28" size="xl" />
                 </UFormField>
 
                 <UButton

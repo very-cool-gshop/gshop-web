@@ -3,14 +3,18 @@ const props = defineProps<{
     handle: string
 }>()
 
-const { shopify: { shopName } } = useAppConfig()
+const {
+    shopify: { shopName },
+} = useAppConfig()
 const { params } = useCollection()
 const router = useRouter()
 const route = useRoute()
 
 const key = computed(() => `collection-${props.handle}-products`)
 
-const { data: collection, status } = await useStorefrontData(key, `#graphql
+const { data: collection, status } = await useStorefrontData(
+    key,
+    `#graphql
     query FetchCollectionProducts(
         $handle: String,
         $after: String,
@@ -46,15 +50,19 @@ const { data: collection, status } = await useStorefrontData(key, `#graphql
     ${COLLECTION_FRAGMENT}
     ${IMAGE_FRAGMENT}
     ${PRICE_FRAGMENT}
-`, {
-    variables: computed(() => collectionInputSchema.parse({
-        handle: props.handle,
-        ...params.value,
-    })),
-    transform: data => data?.collection,
-    watch: [params],
-    cache: 'long',
-})
+`,
+    {
+        variables: computed(() =>
+            collectionInputSchema.parse({
+                handle: props.handle,
+                ...params.value,
+            }),
+        ),
+        transform: (data) => data?.collection,
+        watch: [params],
+        cache: 'long',
+    },
+)
 
 useSeoMeta({
     title: `${collection.value?.title} | ${shopName}`,
@@ -69,42 +77,42 @@ const loadPrevious = async () => {
     route.query.after = null
     route.query.before = pageInfo.value?.startCursor ?? null
 
-    await router.push({ query: {
-        ...route.query,
-        before: pageInfo.value?.startCursor,
-        after: undefined,
-        first: undefined,
-        last: 12,
-    } })
+    await router.push({
+        query: {
+            ...route.query,
+            before: pageInfo.value?.startCursor,
+            after: undefined,
+            first: undefined,
+            last: 12,
+        },
+    })
 }
 
 const loadNext = async () => {
-    await router.push({ query: {
-        ...route.query,
-        before: undefined,
-        after: pageInfo.value?.endCursor,
-        first: 12,
-        last: undefined,
-    } })
+    await router.push({
+        query: {
+            ...route.query,
+            before: undefined,
+            after: pageInfo.value?.endCursor,
+            first: 12,
+            last: undefined,
+        },
+    })
 }
 
-watch(() => collection.value?.products.pageInfo, async () => await nextTick().then(() =>
-    window.scrollTo({ top: 0, behavior: 'smooth' })), { deep: true })
+watch(
+    () => collection.value?.products.pageInfo,
+    async () => await nextTick().then(() => window.scrollTo({ top: 0, behavior: 'smooth' })),
+    { deep: true },
+)
 </script>
 
 <template>
     <div class="w-full lg:grid lg:grid-cols-12">
-        <FilterGroup
-            v-if="filters?.length"
-            :filters="filters"
-            class="lg:col-span-4 xl:col-span-3"
-        />
+        <FilterGroup v-if="filters?.length" :filters="filters" class="lg:col-span-4 xl:col-span-3" />
 
         <div class="my-12 lg:my-14 lg:col-span-8 xl:col-span-9">
-            <div
-                v-if="pageInfo?.hasPreviousPage"
-                class="flex w-full justify-center pb-8 md:mb-8"
-            >
+            <div v-if="pageInfo?.hasPreviousPage" class="flex w-full justify-center pb-8 md:mb-8">
                 <UButton
                     variant="soft"
                     color="primary"
@@ -127,10 +135,7 @@ watch(() => collection.value?.products.pageInfo, async () => await nextTick().th
                 />
             </div>
 
-            <div
-                v-if="pageInfo?.hasNextPage"
-                class="flex w-full justify-center mt-14"
-            >
+            <div v-if="pageInfo?.hasNextPage" class="flex w-full justify-center mt-14">
                 <UButton
                     variant="soft"
                     color="primary"
@@ -142,26 +147,16 @@ watch(() => collection.value?.products.pageInfo, async () => await nextTick().th
                 </UButton>
             </div>
 
-            <div
-                v-if="status === 'pending'"
-                class="flex justify-center pt-8"
-            >
-                Loading products...
-            </div>
+            <div v-if="status === 'pending'" class="flex justify-center pt-8">Loading products...</div>
 
             <div
                 v-else-if="!products || products.length === 0"
                 class="flex flex-col justify-center items-center col-span-full text-center"
             >
                 <div class="flex items-center pb-2 gap-2">
-                    <UIcon
-                        name="i-lucide-triangle-alert"
-                        class="text-dimmed size-6"
-                    />
+                    <UIcon name="i-lucide-triangle-alert" class="text-dimmed size-6" />
 
-                    <p class="text-xl text-dimmed">
-                        No products found.
-                    </p>
+                    <p class="text-xl text-dimmed">No products found.</p>
                 </div>
 
                 <UButton

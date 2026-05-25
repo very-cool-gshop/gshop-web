@@ -35,10 +35,7 @@ const variant = ref(variants.value[0])
                 arrows
                 loop
             >
-                <NuxtLink
-                    :to="url"
-                    :aria-label="`View product: '${props.product.title}'`"
-                >
+                <NuxtLink :to="url" :aria-label="`View product: '${props.product.title}'`">
                     <ProductImage
                         :image="item"
                         :loading="index === 0 ? props.loading : 'lazy'"
@@ -47,16 +44,8 @@ const variant = ref(variants.value[0])
                 </NuxtLink>
             </UCarousel>
 
-            <NuxtLink
-                v-else
-                :to="url"
-                :aria-label="`View product: '${props.product.title}'`"
-            >
-                <ProductImage
-                    :image="images?.[0] ?? undefined"
-                    :loading="props.loading"
-                    :title="props.product.title"
-                />
+            <NuxtLink v-else :to="url" :aria-label="`View product: '${props.product.title}'`">
+                <ProductImage :image="images?.[0] ?? undefined" :loading="props.loading" :title="props.product.title" />
 
                 <ProductImage
                     v-if="images?.[1]"
@@ -68,30 +57,17 @@ const variant = ref(variants.value[0])
         </div>
 
         <div class="flex justify-end flex-wrap items-center relative">
-            <NuxtLink
-                :to="url"
-                class="grow"
-            >
+            <NuxtLink :to="url" class="grow">
                 <p class="font-headings text-xl me-12">
                     {{ props.product.title }}
                 </p>
 
-                <ProductPrice
-                    v-if="variant"
-                    :price="variant.price"
-                    class="grow text-right"
-                />
+                <ProductPrice v-if="variant" :price="variant.price" class="grow text-right" />
             </NuxtLink>
 
-            <CartChoose
-                v-if="variants.length > 1"
-                :product="props.product"
-            />
+            <CartChoose v-if="variants.length > 1" :product="props.product" />
 
-            <CartAdd
-                v-else
-                :product="props.product"
-            />
+            <CartAdd v-else :product="props.product" />
         </div>
     </UCard>
 </template>

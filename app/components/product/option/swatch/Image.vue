@@ -17,11 +17,14 @@ const state = defineModel<string>()
             fieldset: 'flex-row flex-wrap gap-2',
             item: 'p-0 overflow-hidden',
         }"
-        :items="props.option.optionValues.map(value => ({ label: value.name, value: value.name }))"
+        :items="props.option.optionValues.map((value) => ({ label: value.name, value: value.name }))"
     >
         <template #label="{ item }">
             <NuxtImg
-                :src="props.option.optionValues.find(value => value.name === item.value)?.swatch?.image?.previewImage?.url ?? undefined"
+                :src="
+                    props.option.optionValues.find((value) => value.name === item.value)?.swatch?.image?.previewImage
+                        ?.url ?? undefined
+                "
                 :alt="item.label"
                 width="50"
                 height="50"
