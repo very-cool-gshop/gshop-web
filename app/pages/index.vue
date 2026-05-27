@@ -1,15 +1,3 @@
-<script setup lang="ts">
-const {
-    shopify: { shopName },
-} = useAppConfig()
-
-useSeoMeta({
-    title: `Home | ${shopName}`,
-    description:
-        'Welcome to our demo store! Explore our collections and find the perfect items for you. Enjoy a seamless shopping experience with Nuxt and Shopify.',
-})
-</script>
-
 <template>
     <UContainer class="py-12 lg:py-16">
         <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">Nuxt Shopify Demo Store</h1>
@@ -36,3 +24,15 @@ useSeoMeta({
         <CollectionGrid />
     </UContainer>
 </template>
+
+<script setup lang="ts">
+const {
+    shopify: { shopName },
+} = useAppConfig()
+
+useSeoMeta({
+    title: `Home | ${shopName}`,
+    description:
+        'Welcome to our demo store! Explore our collections and find the perfect items for you. Enjoy a seamless shopping experience with Nuxt and Shopify.',
+})
+</script>

@@ -1,32 +1,3 @@
-<script setup lang="ts">
-import type { ProductFieldsFragment, ProductVariantFieldsFragment } from '#shopify/storefront'
-
-const props = defineProps<{
-    product: ProductFieldsFragment
-    selectedVariant?: ProductVariantFieldsFragment
-    thumbnails?: boolean
-}>()
-
-const carousel = useTemplateRef('carousel')
-
-const images = computed(() => flattenConnection(props.product.images))
-
-const sliderImages = computed(() => {
-    if (props.selectedVariant?.image) {
-        const variantImage = props.selectedVariant.image
-
-        return [variantImage, ...images.value.filter((image) => image.url !== variantImage.url)]
-    }
-
-    return images.value
-})
-
-watch(
-    () => props.selectedVariant,
-    () => carousel.value?.emblaApi?.scrollTo(0),
-)
-</script>
-
 <template>
     <div class="w-full">
         <UCarousel
@@ -68,3 +39,32 @@ watch(
         </div>
     </div>
 </template>
+
+<script setup lang="ts">
+import type { ProductFieldsFragment, ProductVariantFieldsFragment } from '#shopify/storefront'
+
+const props = defineProps<{
+    product: ProductFieldsFragment
+    selectedVariant?: ProductVariantFieldsFragment
+    thumbnails?: boolean
+}>()
+
+const carousel = useTemplateRef('carousel')
+
+const images = computed(() => flattenConnection(props.product.images))
+
+const sliderImages = computed(() => {
+    if (props.selectedVariant?.image) {
+        const variantImage = props.selectedVariant.image
+
+        return [variantImage, ...images.value.filter((image) => image.url !== variantImage.url)]
+    }
+
+    return images.value
+})
+
+watch(
+    () => props.selectedVariant,
+    () => carousel.value?.emblaApi?.scrollTo(0),
+)
+</script>

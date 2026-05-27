@@ -1,3 +1,16 @@
+<template>
+    <UCarousel
+        v-slot="{ item: product, index }"
+        :items="products"
+        class="w-full mb-6"
+        :ui="{ item: 'md:basis-1/2 lg:basis-1/3' }"
+        arrows
+        loop
+    >
+        <ProductCard :product="product" :loading="index < 3 ? props.loading : 'lazy'" />
+    </UCarousel>
+</template>
+
 <script setup lang="ts">
 import type { ProductFilter } from '#shopify/storefront'
 
@@ -80,16 +93,3 @@ const { data: products } = await useStorefrontData(
     },
 )
 </script>
-
-<template>
-    <UCarousel
-        v-slot="{ item: product, index }"
-        :items="products"
-        class="w-full mb-6"
-        :ui="{ item: 'md:basis-1/2 lg:basis-1/3' }"
-        arrows
-        loop
-    >
-        <ProductCard :product="product" :loading="index < 3 ? props.loading : 'lazy'" />
-    </UCarousel>
-</template>

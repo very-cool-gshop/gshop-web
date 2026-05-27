@@ -1,3 +1,49 @@
+<template>
+    <UContainer class="py-6 pb-12 lg:py-8 lg:pb-16">
+        <UBreadcrumb
+            :items="[{ label: 'Products' }, { label: product?.title, to: `/product/${handle}` }]"
+            class="mb-6 lg:mb-8"
+        />
+
+        <div v-if="product && selectedVariant" class="mb-12 lg:grid lg:grid-cols-12 lg:mb-16">
+            <ProductGallery
+                ref="carousel"
+                :selected-variant="selectedVariant"
+                :product="product"
+                class="lg:col-span-6"
+                thumbnails
+            />
+
+            <div class="lg:col-span-4 lg:col-start-8">
+                <div class="lg:sticky lg:top-[calc(var(--ui-header-height)+3rem)]">
+                    <ProductConfigurator v-model="selectedVariant" :product="product" class="mb-12 lg:mb-16" />
+
+                    <p class="mb-6 lg:text-lg lg:mb-8">
+                        {{ product.description }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="recommendations">
+            <h2 class="text-3xl text-gray-900 font-bold mb-6 lg:mb-8 lg:text-4xl">You may also like</h2>
+
+            <div class="mb-12 sm:px-12 lg:mb-16">
+                <UCarousel
+                    v-slot="{ item }"
+                    :items="recommendations"
+                    :ui="{ item: 'md:basis-1/2 lg:basis-1/3' }"
+                    class="w-full mb-6"
+                    arrows
+                    loop
+                >
+                    <ProductCard :product="item as ProductFieldsFragment" />
+                </UCarousel>
+            </div>
+        </div>
+    </UContainer>
+</template>
+
 <script setup lang="ts">
 import type { ProductFieldsFragment } from '#shopify/storefront'
 
@@ -79,49 +125,3 @@ watch(selectedVariant, (variant) => {
     }
 })
 </script>
-
-<template>
-    <UContainer class="py-6 pb-12 lg:py-8 lg:pb-16">
-        <UBreadcrumb
-            :items="[{ label: 'Products' }, { label: product?.title, to: `/product/${handle}` }]"
-            class="mb-6 lg:mb-8"
-        />
-
-        <div v-if="product && selectedVariant" class="mb-12 lg:grid lg:grid-cols-12 lg:mb-16">
-            <ProductGallery
-                ref="carousel"
-                :selected-variant="selectedVariant"
-                :product="product"
-                class="lg:col-span-6"
-                thumbnails
-            />
-
-            <div class="lg:col-span-4 lg:col-start-8">
-                <div class="lg:sticky lg:top-[calc(var(--ui-header-height)+3rem)]">
-                    <ProductConfigurator v-model="selectedVariant" :product="product" class="mb-12 lg:mb-16" />
-
-                    <p class="mb-6 lg:text-lg lg:mb-8">
-                        {{ product.description }}
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div v-if="recommendations">
-            <h2 class="text-3xl text-gray-900 font-bold mb-6 lg:mb-8 lg:text-4xl">You may also like</h2>
-
-            <div class="mb-12 sm:px-12 lg:mb-16">
-                <UCarousel
-                    v-slot="{ item }"
-                    :items="recommendations"
-                    :ui="{ item: 'md:basis-1/2 lg:basis-1/3' }"
-                    class="w-full mb-6"
-                    arrows
-                    loop
-                >
-                    <ProductCard :product="item as ProductFieldsFragment" />
-                </UCarousel>
-            </div>
-        </div>
-    </UContainer>
-</template>
