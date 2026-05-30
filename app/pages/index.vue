@@ -35,4 +35,8 @@ useSeoMeta({
     description:
         'Welcome to our demo store! Explore our collections and find the perfect items for you. Enjoy a seamless shopping experience with Nuxt and Shopify.',
 })
+
+const apiFetch = useApiFetch()
+const { data } = await useAsyncData('products', () => apiFetch('/products'))
+console.log('products', data.value)
 </script>

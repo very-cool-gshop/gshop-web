@@ -14,6 +14,10 @@ export default defineNuxtConfig({
     },
 
     runtimeConfig: {
+        public: {
+            apiBase: '',
+        },
+
         shopify: {
             name: 'nuxt-shopify-demo-store',
 

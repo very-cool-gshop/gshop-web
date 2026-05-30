@@ -1,39 +1,3 @@
-<script setup lang="ts">
-const { language, country } = useLocalization()
-
-const { data: items } = await useStorefrontData(
-    'main-menu',
-    `#graphql
-    query GetNavigation($handle: String!, $language: LanguageCode, $country: CountryCode)
-    @inContext(language: $language, country: $country) {
-        menu(handle: $handle) {
-            ...MenuFields
-        }
-    }
-    ${MENU_FRAGMENT}
-`,
-    {
-        variables: menuGetInputSchema.parse({
-            handle: 'main-menu',
-            language: language.value,
-            country: country.value,
-        }),
-        transform: (data) =>
-            data.menu?.items?.map((item) => ({
-                label: item.title,
-                to:
-                    item.resource?.__typename === 'Blog'
-                        ? `/blog/${item.resource?.handle}`
-                        : item.resource?.__typename === 'Collection'
-                          ? `/collection/${item.resource?.handle}`
-                          : (item.url ?? undefined),
-            })) ?? [],
-        cache: 'long',
-        watch: [language, country],
-    },
-)
-</script>
-
 <template>
     <UHeader title="Nuxt Shopify">
         <template #left>
@@ -53,3 +17,12 @@ const { data: items } = await useStorefrontData(
         </template>
     </UHeader>
 </template>
+
+<script setup lang="ts">
+const items = [
+    { label: 'Clothing', to: '/category/clothing' },
+    { label: 'Men', to: '/collection/men' },
+    { label: 'Women', to: '/collection/women' },
+    { label: 'Unisex', to: '/collection/unisex' },
+]
+</script>

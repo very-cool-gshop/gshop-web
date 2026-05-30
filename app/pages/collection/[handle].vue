@@ -1,3 +1,22 @@
+<template>
+    <UContainer class="py-6 lg:py-8">
+        <UBreadcrumb
+            :items="[{ label: 'Collections' }, { label: collection?.title, to: `/collection/${handle}` }]"
+            class="mb-6 lg:mb-8"
+        />
+
+        <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">
+            {{ collection?.title }}
+        </h1>
+
+        <p class="lg:text-lg max-w-md mb-8 lg:mb-10">
+            {{ collection?.description }}
+        </p>
+
+        <CollectionProducts :handle="handle" />
+    </UContainer>
+</template>
+
 <script setup lang="ts">
 definePageMeta({
     validate: (route) => typeof route.params.handle === 'string',
@@ -55,22 +74,3 @@ useSeoMeta({
         'Welcome to our demo store! Explore our collections and find the perfect items for you.',
 })
 </script>
-
-<template>
-    <UContainer class="py-6 lg:py-8">
-        <UBreadcrumb
-            :items="[{ label: 'Collections' }, { label: collection?.title, to: `/collection/${handle}` }]"
-            class="mb-6 lg:mb-8"
-        />
-
-        <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">
-            {{ collection?.title }}
-        </h1>
-
-        <p class="lg:text-lg max-w-md mb-8 lg:mb-10">
-            {{ collection?.description }}
-        </p>
-
-        <CollectionProducts :handle="handle" />
-    </UContainer>
-</template>
