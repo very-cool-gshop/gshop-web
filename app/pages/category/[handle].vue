@@ -5,13 +5,9 @@
             class="mb-6 lg:mb-8"
         />
 
-        <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">
-            Clothing
-        </h1>
+        <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">Clothing</h1>
 
-        <p class="lg:text-lg max-w-md mb-8 lg:mb-10">
-            Browse our clothing collection.
-        </p>
+        <p class="lg:text-lg max-w-md mb-8 lg:mb-10">Browse our clothing collection.</p>
 
         <div class="w-full lg:grid lg:grid-cols-12">
             <!-- Filter Sidebar -->
@@ -28,9 +24,18 @@
                         />
                     </div>
 
-                    <UAccordion :items="accordionItems" type="multiple" :default-value="['availability', 'price', 'sort']">
+                    <UAccordion
+                        :items="accordionItems"
+                        type="multiple"
+                        :default-value="['availability', 'price', 'sort']"
+                    >
                         <template #availability>
-                            <UCheckboxGroup v-model="availability" :items="availabilityOptions" class="pb-2" @update:model-value="applyFilters" />
+                            <UCheckboxGroup
+                                v-model="availability"
+                                :items="availabilityOptions"
+                                class="pb-2"
+                                @update:model-value="applyFilters"
+                            />
                         </template>
 
                         <template #price>
@@ -45,7 +50,12 @@
                         </template>
 
                         <template #sort>
-                            <USelect v-model="sortValue" :items="sortOptions" class="w-full mb-2" @change="applyFilters" />
+                            <USelect
+                                v-model="sortValue"
+                                :items="sortOptions"
+                                class="w-full mb-2"
+                                @change="applyFilters"
+                            />
                         </template>
                     </UAccordion>
                 </div>
@@ -53,9 +63,7 @@
 
             <!-- Product Grid -->
             <div class="my-12 lg:my-14 lg:col-span-8 xl:col-span-9">
-                <div v-if="status === 'pending'" class="flex justify-center pt-8">
-                    Loading products...
-                </div>
+                <div v-if="status === 'pending'" class="flex justify-center pt-8">Loading products...</div>
 
                 <div
                     v-else-if="!products?.data?.length"
@@ -112,7 +120,20 @@
                                 aria-label="Add to cart"
                                 :ui="{
                                     trailingIcon: 'size-5',
-                                    label: ['ms-auto', 'max-w-0', 'invisible', 'group-focus:visible', 'group-focus:max-w-full', 'group-hover:visible', 'group-hover:max-w-full', 'transition-all', 'duration-300', 'truncate-0', 'ps-1.5', 'pe-1'],
+                                    label: [
+                                        'ms-auto',
+                                        'max-w-0',
+                                        'invisible',
+                                        'group-focus:visible',
+                                        'group-focus:max-w-full',
+                                        'group-hover:visible',
+                                        'group-hover:max-w-full',
+                                        'transition-all',
+                                        'duration-300',
+                                        'truncate-0',
+                                        'ps-1.5',
+                                        'pe-1',
+                                    ],
                                     base: 'absolute bottom-0 group rounded-full p-2.5',
                                 }"
                             />
@@ -172,15 +193,13 @@ const accordionItems = [
     { label: 'Sort', slot: 'sort', value: 'sort' },
 ]
 
-const availability = ref<string[]>(
-    route.query.availability ? (route.query.availability as string).split(',') : []
-)
+const availability = ref<string[]>(route.query.availability ? (route.query.availability as string).split(',') : [])
 const minPrice = ref(route.query.minPrice ? Number(route.query.minPrice) : undefined)
 const maxPrice = ref(route.query.maxPrice ? Number(route.query.maxPrice) : undefined)
 const sortValue = ref((route.query.sort as string) ?? 'createdAt_DESC')
 
-const hasActiveFilters = computed(() =>
-    minPrice.value !== undefined || maxPrice.value !== undefined || sortValue.value !== 'createdAt_DESC'
+const hasActiveFilters = computed(
+    () => minPrice.value !== undefined || maxPrice.value !== undefined || sortValue.value !== 'createdAt_DESC',
 )
 
 const applyFilters = () => {
@@ -214,6 +233,6 @@ const queryParams = computed(() => {
 const { data: products, status } = await useAsyncData<ProductsResponse>(
     'category-clothing',
     () => apiFetch('/products', { params: queryParams.value }),
-    { watch: [queryParams] }
+    { watch: [queryParams] },
 )
 </script>
