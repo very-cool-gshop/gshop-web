@@ -27,7 +27,6 @@
                     <UAccordion
                         :items="accordionItems"
                         type="multiple"
-                        :default-value="['availability', 'price', 'sort']"
                     >
                         <template #availability>
                             <UCheckboxGroup
@@ -49,14 +48,6 @@
                             </div>
                         </template>
 
-                        <template #sort>
-                            <USelect
-                                v-model="sortValue"
-                                :items="sortOptions"
-                                class="w-full mb-2"
-                                @change="applyFilters"
-                            />
-                        </template>
                     </UAccordion>
                 </div>
             </div>
@@ -173,15 +164,6 @@ const router = useRouter()
 const route = useRoute()
 const apiFetch = useApiFetch()
 
-const sortOptions = [
-    { label: 'Newest', value: 'createdAt_DESC' },
-    { label: 'Oldest', value: 'createdAt_ASC' },
-    { label: 'Price: Low to High', value: 'price_ASC' },
-    { label: 'Price: High to Low', value: 'price_DESC' },
-    { label: 'Name A-Z', value: 'name_ASC' },
-    { label: 'Name Z-A', value: 'name_DESC' },
-]
-
 const availabilityOptions = [
     { label: 'In stock', value: 'instock' },
     { label: 'Out of stock', value: 'outofstock' },
@@ -190,24 +172,18 @@ const availabilityOptions = [
 const accordionItems = [
     { label: 'Availability', slot: 'availability', value: 'availability' },
     { label: 'Price', slot: 'price', value: 'price' },
-    { label: 'Sort', slot: 'sort', value: 'sort' },
 ]
 
 const availability = ref<string[]>(route.query.availability ? (route.query.availability as string).split(',') : [])
 const minPrice = ref(route.query.minPrice ? Number(route.query.minPrice) : undefined)
 const maxPrice = ref(route.query.maxPrice ? Number(route.query.maxPrice) : undefined)
-const sortValue = ref((route.query.sort as string) ?? 'createdAt_DESC')
-
-const hasActiveFilters = computed(
-    () => minPrice.value !== undefined || maxPrice.value !== undefined || sortValue.value !== 'createdAt_DESC',
-)
+const hasActiveFilters = computed(() => minPrice.value !== undefined || maxPrice.value !== undefined)
 
 const applyFilters = () => {
     router.push({
         query: {
             minPrice: minPrice.value ?? undefined,
             maxPrice: maxPrice.value ?? undefined,
-            sort: sortValue.value !== 'createdAt_DESC' ? sortValue.value : undefined,
         },
     })
 }
@@ -215,20 +191,14 @@ const applyFilters = () => {
 const clearFilters = () => {
     minPrice.value = undefined
     maxPrice.value = undefined
-    sortValue.value = 'createdAt_DESC'
     router.push({ query: {} })
 }
 
-const queryParams = computed(() => {
-    const [sortBy, order] = (sortValue.value ?? 'createdAt_DESC').split('_')
-    return {
-        categoryId: 1,
-        minPrice: minPrice.value ?? undefined,
-        maxPrice: maxPrice.value ?? undefined,
-        sortBy,
-        order,
-    }
-})
+const queryParams = computed(() => ({
+    categoryId: 1,
+    minPrice: minPrice.value ?? undefined,
+    maxPrice: maxPrice.value ?? undefined,
+}))
 
 const { data: products, status } = await useAsyncData<ProductsResponse>(
     'category-clothing',
