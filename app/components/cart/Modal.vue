@@ -1,11 +1,14 @@
 <script setup lang="ts">
-const { open, loading, quantity, lines, total, checkoutUrl } = useCart()
+const { open } = useCart()
+const { count, items, total, fetchCart } = useApiCart()
 const route = useRoute()
 
 watch(
     () => route.path,
     () => (open.value = false),
 )
+
+onMounted(fetchCart)
 </script>
 
 <template>
@@ -29,11 +32,11 @@ watch(
 
             <ClientOnly>
                 <UBadge
-                    v-if="quantity"
+                    v-if="count"
                     class="absolute font-bold rounded-full -top-1.5 -right-2 px-1.5 font-mono lg:text-xs lg:-right-3 lg:-top-2"
                     size="xs"
                 >
-                    {{ quantity }}
+                    {{ count }}
                 </UBadge>
             </ClientOnly>
         </div>
@@ -45,40 +48,28 @@ watch(
                 leave-from-class="opacity-100"
                 enter-from-class="opacity-0"
             >
-                <CartLineItem v-for="line in lines" :key="line.id" :line="line" class="shrink-0 duration-300" />
+                <CartApiLineItem v-for="item in items" :key="item.id" :item="item" class="shrink-0 duration-300" />
             </TransitionGroup>
 
-            <p v-if="lines.length === 0" class="my-auto text-center">Your cart is empty.</p>
+            <p v-if="items.length === 0" class="my-auto text-center">Your cart is empty.</p>
         </template>
 
         <template #footer>
-            <div
-                v-if="total"
-                class="flex justify-between items-center w-full"
-                :class="{
-                    'animate-pulse': loading,
-                }"
-            >
-                <div class="flex items-center gap-2">
-                    <p class="font-medium inline-block">
-                        Subtotal:
-                        <ProductPrice :price="total" />
-                    </p>
-
-                    <Icon v-if="loading" name="i-lucide-loader-circle" class="animate-spin" />
-                </div>
+            <div v-if="total > 0" class="flex justify-between items-center w-full">
+                <p class="font-medium inline-block">
+                    Subtotal: <span class="font-semibold">{{ total.toFixed(2) }}</span>
+                </p>
 
                 <UButton
                     variant="ghost"
                     color="neutral"
-                    :to="checkoutUrl"
                     label="Checkout"
                     size="xl"
                     trailing-icon="i-lucide-arrow-right"
                     :ui="{
                         trailingIcon: 'size-4',
                     }"
-                    :disabled="loading || lines.length === 0"
+                    disabled
                 />
             </div>
         </template>

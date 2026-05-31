@@ -255,7 +255,9 @@ const quantity = ref(1)
 const selectedVariant = ref<ProductVariant | null>(product.value?.ProductVariants?.[0] ?? null)
 
 const { user, isLoggedIn } = useAuth()
+const token = useCookie('token')
 const toast = useToast()
+const { increment } = useApiCart()
 
 const handleAddToCart = async () => {
     if (!isLoggedIn.value) {
@@ -268,10 +270,15 @@ const handleAddToCart = async () => {
         return
     }
     try {
-        await addCartItem(user.value!.id, variantId, quantity.value)
+        await addCartItem(token.value ?? null, user.value!.id, variantId, quantity.value)
+        increment()
         toast.add({ title: 'Added to cart', color: 'success' })
-    } catch {
-        toast.add({ title: 'Could not add to cart. Please try again.', color: 'error' })
+    } catch (error: any) {
+        if (error?.response?.status === 401) {
+            await navigateTo('/login')
+            return
+        }
+        toast.add({ title: error?.data?.message ?? error?.message ?? 'Could not add to cart.', color: 'error' })
     }
 }
 
@@ -287,10 +294,15 @@ const handleAddRelatedToCart = async (productId: number) => {
             toast.add({ title: 'No variant available.', color: 'error' })
             return
         }
-        await addCartItem(user.value!.id, variantId, 1)
+        await addCartItem(token.value ?? null, user.value!.id, variantId, 1)
+        increment()
         toast.add({ title: 'Added to cart', color: 'success' })
-    } catch {
-        toast.add({ title: 'Could not add to cart. Please try again.', color: 'error' })
+    } catch (error: any) {
+        if (error?.response?.status === 401) {
+            await navigateTo('/login')
+            return
+        }
+        toast.add({ title: error?.data?.message ?? error?.message ?? 'Could not add to cart.', color: 'error' })
     }
 }
 
