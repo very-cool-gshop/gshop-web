@@ -19,10 +19,10 @@
 </template>
 
 <script setup lang="ts">
-const items = [
-    { label: 'Clothing', to: '/category/clothing' },
-    { label: 'Men', to: '/collection/men' },
-    { label: 'Women', to: '/collection/women' },
-    { label: 'Unisex', to: '/collection/unisex' },
-]
+const apiFetch = useApiFetch()
+const { data: categories } = await useAsyncData('categories', () =>
+    apiFetch<{ id: number; name: string }[]>('/categories'),
+)
+
+const items = computed(() => categories.value?.map((c) => ({ label: c.name, to: `/category/${c.id}` })) ?? [])
 </script>

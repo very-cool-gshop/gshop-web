@@ -82,7 +82,7 @@
                         :ui="{ body: 'h-full !p-0', root: 'rounded-none !bg-transparent' }"
                         class="flex flex-col max-w-full h-full pb-14 border-b border-b-default"
                     >
-                        <NuxtLink :to="`/temp_product/${product.id}`">
+                        <NuxtLink :to="`/product/${product.id}`">
                             <img
                                 v-if="product.image"
                                 :src="product.image.url"
@@ -98,7 +98,7 @@
                         </NuxtLink>
 
                         <div class="flex justify-end flex-wrap items-center relative">
-                            <NuxtLink :to="`/temp_product/${product.id}`" class="grow">
+                            <NuxtLink :to="`/product/${product.id}`" class="grow">
                                 <p class="font-headings text-xl me-12">{{ product.name }}</p>
                                 <p class="text-gray-900 font-semibold">${{ product.price }}</p>
                             </NuxtLink>
@@ -194,14 +194,16 @@ const clearFilters = () => {
     router.push({ query: {} })
 }
 
+const categoryId = computed(() => Number(route.params.handle))
+
 const queryParams = computed(() => ({
-    categoryId: 1,
+    categoryId: categoryId.value,
     minPrice: minPrice.value ?? undefined,
     maxPrice: maxPrice.value ?? undefined,
 }))
 
 const { data: products, status } = await useAsyncData<ProductsResponse>(
-    'category-clothing',
+    () => `category-${route.params.handle}`,
     () => apiFetch('/products', { params: queryParams.value }),
     { watch: [queryParams] },
 )
