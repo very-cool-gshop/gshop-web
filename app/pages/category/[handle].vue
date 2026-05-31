@@ -127,6 +127,7 @@
                                     ],
                                     base: 'absolute bottom-0 group rounded-full p-2.5',
                                 }"
+                                @click="handleAddToCart(product.id)"
                             />
                         </div>
                     </UCard>
@@ -160,9 +161,32 @@ interface ProductsResponse {
     data: Product[]
 }
 
+import { addCartItem } from '~/api/cart'
+
 const router = useRouter()
 const route = useRoute()
 const apiFetch = useApiFetch()
+const { user, isLoggedIn } = useAuth()
+const toast = useToast()
+
+const handleAddToCart = async (productId: number) => {
+    if (!isLoggedIn.value) {
+        await navigateTo('/login')
+        return
+    }
+    try {
+        const p = await apiFetch<{ ProductVariants: { id: number }[] }>(`/products/${productId}`)
+        const variantId = p.ProductVariants?.[0]?.id
+        if (!variantId) {
+            toast.add({ title: 'No variant available.', color: 'error' })
+            return
+        }
+        await addCartItem(user.value!.id, variantId, 1)
+        toast.add({ title: 'Added to cart', color: 'success' })
+    } catch {
+        toast.add({ title: 'Could not add to cart. Please try again.', color: 'error' })
+    }
+}
 
 const availabilityOptions = [
     { label: 'In stock', value: 'instock' },

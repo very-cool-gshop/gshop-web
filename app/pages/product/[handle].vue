@@ -39,17 +39,16 @@
                     </div>
                 </template>
 
-                <div v-else class="max-w-full rounded-md overflow-hidden mb-6 lg:mb-8 bg-gray-100 flex items-center justify-center aspect-square">
+                <div
+                    v-else
+                    class="max-w-full rounded-md overflow-hidden mb-6 lg:mb-8 bg-gray-100 flex items-center justify-center aspect-square"
+                >
                     <UIcon name="i-lucide-image" class="size-24 text-gray-300" />
                 </div>
 
                 <!-- Thumbnails -->
                 <div v-if="allImages.length > 1" class="hidden lg:grid grid-cols-12 gap-8 mb-6 lg:mb-8">
-                    <div
-                        v-for="(img, i) in allImages"
-                        :key="img.id"
-                        class="col-span-6 rounded-md overflow-hidden"
-                    >
+                    <div v-for="(img, i) in allImages" :key="img.id" class="col-span-6 rounded-md overflow-hidden">
                         <img
                             :src="img.url"
                             :alt="`${product.name}${i !== 0 ? ` (${i})` : ''}`"
@@ -82,7 +81,7 @@
                                 variant="card"
                                 indicator="hidden"
                                 :ui="{ fieldset: 'flex-row flex-wrap gap-2' }"
-                                :items="product.ProductVariants.map(v => ({ label: v.name, value: String(v.id) }))"
+                                :items="product.ProductVariants.map((v) => ({ label: v.name, value: String(v.id) }))"
                             />
                             <p v-if="selectedVariant && selectedVariant.stock > 0" class="text-sm text-green-600 mt-2">
                                 In stock ({{ selectedVariant.stock }} available)
@@ -100,7 +99,9 @@
                                 variant="subtle"
                                 trailing-icon="i-lucide-shopping-bag"
                                 :ui="{ trailingIcon: 'size-5' }"
+                                class="cursor-pointer"
                                 label="Add"
+                                @click="handleAddToCart"
                             />
                         </div>
                     </div>
@@ -135,10 +136,7 @@
                                     :alt="item.name"
                                     class="aspect-square max-w-full object-contain"
                                 />
-                                <div
-                                    v-else
-                                    class="aspect-square bg-gray-100 flex items-center justify-center"
-                                >
+                                <div v-else class="aspect-square bg-gray-100 flex items-center justify-center">
                                     <UIcon name="i-lucide-image" class="size-12 text-gray-300" />
                                 </div>
                             </div>
@@ -156,9 +154,23 @@
                                 aria-label="Add to cart"
                                 :ui="{
                                     trailingIcon: 'size-5',
-                                    label: ['ms-auto', 'max-w-0', 'invisible', 'group-focus:visible', 'group-focus:max-w-full', 'group-hover:visible', 'group-hover:max-w-full', 'transition-all', 'duration-300', 'truncate-0', 'ps-1.5', 'pe-1'],
+                                    label: [
+                                        'ms-auto',
+                                        'max-w-0',
+                                        'invisible',
+                                        'group-focus:visible',
+                                        'group-focus:max-w-full',
+                                        'group-hover:visible',
+                                        'group-hover:max-w-full',
+                                        'transition-all',
+                                        'duration-300',
+                                        'truncate-0',
+                                        'ps-1.5',
+                                        'pe-1',
+                                    ],
                                     base: 'absolute bottom-0 group rounded-full p-2.5',
                                 }"
+                                @click="handleAddRelatedToCart(item.id)"
                             />
                         </div>
                     </UCard>
@@ -204,14 +216,15 @@ interface ProductsResponse {
     data: Product[]
 }
 
+import { addCartItem } from '~/api/cart'
+
 const route = useRoute()
 const apiFetch = useApiFetch()
 
 const productId = computed(() => route.params.handle as string)
 
-const { data: product, error } = await useAsyncData<Product>(
-    `product-${productId.value}`,
-    () => apiFetch(`/products/${productId.value}`)
+const { data: product, error } = await useAsyncData<Product>(`product-${productId.value}`, () =>
+    apiFetch(`/products/${productId.value}`),
 )
 
 if (!product.value || error.value) {
@@ -223,9 +236,8 @@ if (!product.value || error.value) {
     })
 }
 
-const { data: relatedProducts } = await useAsyncData<ProductsResponse>(
-    `related-${productId.value}`,
-    () => apiFetch('/products', { params: { categoryId: product.value?.categoryId, limit: 7 } })
+const { data: relatedProducts } = await useAsyncData<ProductsResponse>(`related-${productId.value}`, () =>
+    apiFetch('/products', { params: { categoryId: product.value?.categoryId, limit: 7 } }),
 )
 
 const allImages = computed(() => {
@@ -237,17 +249,55 @@ const allImages = computed(() => {
     return imgs
 })
 
-const relatedItems = computed(() =>
-    relatedProducts.value?.data?.filter((p) => p.id !== product.value?.id) ?? []
-)
+const relatedItems = computed(() => relatedProducts.value?.data?.filter((p) => p.id !== product.value?.id) ?? [])
 
 const quantity = ref(1)
 const selectedVariant = ref<ProductVariant | null>(product.value?.ProductVariants?.[0] ?? null)
 
+const { user, isLoggedIn } = useAuth()
+const toast = useToast()
+
+const handleAddToCart = async () => {
+    if (!isLoggedIn.value) {
+        await navigateTo('/login')
+        return
+    }
+    const variantId = selectedVariant.value?.id ?? product.value!.ProductVariants?.[0]?.id
+    if (!variantId) {
+        toast.add({ title: 'No variant available.', color: 'error' })
+        return
+    }
+    try {
+        await addCartItem(user.value!.id, variantId, quantity.value)
+        toast.add({ title: 'Added to cart', color: 'success' })
+    } catch {
+        toast.add({ title: 'Could not add to cart. Please try again.', color: 'error' })
+    }
+}
+
+const handleAddRelatedToCart = async (productId: number) => {
+    if (!isLoggedIn.value) {
+        await navigateTo('/login')
+        return
+    }
+    try {
+        const p = await apiFetch<{ ProductVariants: { id: number }[] }>(`/products/${productId}`)
+        const variantId = p.ProductVariants?.[0]?.id
+        if (!variantId) {
+            toast.add({ title: 'No variant available.', color: 'error' })
+            return
+        }
+        await addCartItem(user.value!.id, variantId, 1)
+        toast.add({ title: 'Added to cart', color: 'success' })
+    } catch {
+        toast.add({ title: 'Could not add to cart. Please try again.', color: 'error' })
+    }
+}
+
 const selectedVariantId = computed({
     get: () => String(selectedVariant.value?.id ?? ''),
     set: (id) => {
-        selectedVariant.value = product.value?.ProductVariants?.find(v => String(v.id) === id) ?? null
+        selectedVariant.value = product.value?.ProductVariants?.find((v) => String(v.id) === id) ?? null
     },
 })
 </script>
