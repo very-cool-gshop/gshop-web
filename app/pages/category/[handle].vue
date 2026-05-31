@@ -82,7 +82,7 @@
                         :ui="{ body: 'h-full !p-0', root: 'rounded-none !bg-transparent' }"
                         class="flex flex-col max-w-full h-full pb-14 border-b border-b-default"
                     >
-                        <NuxtLink :to="`/${product.id}`">
+                        <NuxtLink :to="`/temp_product/${product.id}`">
                             <img
                                 v-if="product.image"
                                 :src="product.image.url"
@@ -98,7 +98,7 @@
                         </NuxtLink>
 
                         <div class="flex justify-end flex-wrap items-center relative">
-                            <NuxtLink :to="`/${product.id}`" class="grow">
+                            <NuxtLink :to="`/temp_product/${product.id}`" class="grow">
                                 <p class="font-headings text-xl me-12">{{ product.name }}</p>
                                 <p class="text-gray-900 font-semibold">${{ product.price }}</p>
                             </NuxtLink>

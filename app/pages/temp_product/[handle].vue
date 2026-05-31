@@ -77,17 +77,13 @@
 
                         <div v-if="product.ProductVariants?.length" class="mb-6 lg:mb-8">
                             <p class="text-sm font-medium text-gray-700 mb-2">Variants</p>
-                            <div class="flex flex-wrap gap-2">
-                                <UButton
-                                    v-for="variant in product.ProductVariants"
-                                    :key="variant.id"
-                                    :label="variant.name"
-                                    :variant="selectedVariant?.id === variant.id ? 'solid' : 'outline'"
-                                    color="neutral"
-                                    size="sm"
-                                    @click="selectedVariant = variant"
-                                />
-                            </div>
+                            <URadioGroup
+                                v-model="selectedVariantId"
+                                variant="card"
+                                indicator="hidden"
+                                :ui="{ fieldset: 'flex-row flex-wrap gap-2' }"
+                                :items="product.ProductVariants.map(v => ({ label: v.name, value: String(v.id) }))"
+                            />
                             <p v-if="selectedVariant && selectedVariant.stock > 0" class="text-sm text-green-600 mt-2">
                                 In stock ({{ selectedVariant.stock }} available)
                             </p>
@@ -247,4 +243,11 @@ const relatedItems = computed(() =>
 
 const quantity = ref(1)
 const selectedVariant = ref<ProductVariant | null>(product.value?.ProductVariants?.[0] ?? null)
+
+const selectedVariantId = computed({
+    get: () => String(selectedVariant.value?.id ?? ''),
+    set: (id) => {
+        selectedVariant.value = product.value?.ProductVariants?.find(v => String(v.id) === id) ?? null
+    },
+})
 </script>
