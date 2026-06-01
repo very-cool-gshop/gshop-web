@@ -38,6 +38,11 @@ export default defineNuxtConfig({
                 name: 'Source Sans 3',
                 provider: 'google',
             },
+            {
+                name: 'Syne',
+                provider: 'google',
+                weights: [700, 800],
+            },
         ],
     },
 })
