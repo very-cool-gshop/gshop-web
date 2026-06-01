@@ -257,7 +257,7 @@ const selectedVariant = ref<ProductVariant | null>(product.value?.ProductVariant
 const { user, isLoggedIn } = useAuth()
 const token = useCookie('token')
 const toast = useToast()
-const { increment } = useApiCart()
+const { fetchCart } = useApiCart()
 
 const handleAddToCart = async () => {
     if (!isLoggedIn.value) {
@@ -271,7 +271,7 @@ const handleAddToCart = async () => {
     }
     try {
         await addCartItem(token.value ?? null, user.value!.id, variantId, quantity.value)
-        increment()
+        fetchCart()
         toast.add({ title: 'Added to cart', color: 'success' })
     } catch (error: any) {
         if (error?.response?.status === 401) {
@@ -295,7 +295,7 @@ const handleAddRelatedToCart = async (productId: number) => {
             return
         }
         await addCartItem(token.value ?? null, user.value!.id, variantId, 1)
-        increment()
+        fetchCart()
         toast.add({ title: 'Added to cart', color: 'success' })
     } catch (error: any) {
         if (error?.response?.status === 401) {

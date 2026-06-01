@@ -169,7 +169,7 @@ const apiFetch = useApiFetch()
 const { user, isLoggedIn } = useAuth()
 const token = useCookie('token')
 const toast = useToast()
-const { increment } = useApiCart()
+const { fetchCart } = useApiCart()
 
 const handleAddToCart = async (productId: number) => {
     if (!isLoggedIn.value) {
@@ -184,7 +184,7 @@ const handleAddToCart = async (productId: number) => {
             return
         }
         await addCartItem(token.value ?? null, user.value!.id, variantId, 1)
-        increment()
+        fetchCart()
         toast.add({ title: 'Added to cart', color: 'success' })
     } catch (error: any) {
         if (error?.response?.status === 401) {

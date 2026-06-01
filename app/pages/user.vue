@@ -1,5 +1,5 @@
 <template>
-    <UContainer class="py-12 lg:py-16 max-w-lg">
+    <UContainer class="py-12 lg:py-16 max-w-2xl">
         <div class="flex justify-between items-center mb-8">
             <h1 class="text-3xl font-extrabold text-gray-900">My Account</h1>
             <UButton variant="ghost" color="neutral" label="Sign out" class="cursor-pointer" @click="logout" />
@@ -35,6 +35,41 @@
             </div>
         </div>
 
+        <div class="mb-10 p-6 border border-default rounded-lg">
+            <h2 class="text-lg font-bold mb-4">My Orders</h2>
+
+            <div v-if="ordersLoading" class="text-center py-8">
+                <UIcon name="i-lucide-loader-circle" class="size-6 text-gray-400 animate-spin mx-auto" />
+            </div>
+
+            <div v-else-if="orders.length === 0" class="text-center py-8 text-gray-400 text-sm">
+                No orders yet.
+            </div>
+
+            <div v-else class="flex flex-col gap-4">
+                <div v-for="order in orders" :key="order.id" class="border border-default rounded-lg p-4">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <span class="text-sm font-semibold">#{{ order.id }}</span>
+                            <span class="text-xs text-gray-400 ml-2">{{ new Date(order.createdAt).toLocaleDateString() }}</span>
+                        </div>
+                        <UBadge :color="statusColor(order.status)" variant="subtle" :label="order.status" />
+                    </div>
+
+                    <div class="flex flex-col gap-1 mb-3">
+                        <div v-for="item in order.OrderItems" :key="item.id" class="flex justify-between text-sm">
+                            <span class="text-gray-600">{{ item.productName }}<span v-if="item.variantName" class="text-gray-400"> · {{ item.variantName }}</span> × {{ item.quantity }}</span>
+                            <span class="font-medium">${{ Number(item.subtotal).toFixed(2) }}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end border-t border-default pt-2 text-sm font-bold">
+                        Total: ${{ Number(order.totalAmount).toFixed(2) }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="p-6 border border-default rounded-lg">
             <h2 class="text-lg font-bold mb-4">Change Password</h2>
             <UForm :schema="schema" :state="state" class="flex flex-col gap-4" @submit="handleChangePassword">
@@ -63,6 +98,42 @@ const { user, logout } = useAuth()
 const apiFetch = useApiFetch()
 const toast = useToast()
 const loading = ref(false)
+
+interface OrderItem {
+    id: number
+    productName: string
+    variantName: string
+    quantity: number
+    subtotal: string
+}
+
+interface Order {
+    id: number
+    status: string
+    totalAmount: string
+    createdAt: string
+    OrderItems: OrderItem[]
+}
+
+const orders = ref<Order[]>([])
+const ordersLoading = ref(true)
+
+const statusColor = (status: string) => {
+    const map: Record<string, string> = {
+        pending: 'yellow',
+        paid: 'blue',
+        shipped: 'purple',
+        delivered: 'green',
+        cancelled: 'red',
+    }
+    return map[status] ?? 'neutral'
+}
+
+const { data: ordersData } = await useAsyncData('orders', () =>
+    apiFetch<{ data: Order[] }>('/orders'),
+)
+orders.value = ordersData.value?.data ?? []
+ordersLoading.value = false
 
 const schema = z
     .object({

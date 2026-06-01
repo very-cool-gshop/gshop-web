@@ -1,16 +1,3 @@
-<script setup lang="ts">
-const { open } = useCart()
-const { count, items, total, fetchCart } = useApiCart()
-const route = useRoute()
-
-watch(
-    () => route.path,
-    () => (open.value = false),
-)
-
-onMounted(fetchCart)
-</script>
-
 <template>
     <USlideover
         v-model:open="open"
@@ -61,6 +48,7 @@ onMounted(fetchCart)
                 </p>
 
                 <UButton
+                    to="/checkout"
                     variant="ghost"
                     color="neutral"
                     label="Checkout"
@@ -69,9 +57,22 @@ onMounted(fetchCart)
                     :ui="{
                         trailingIcon: 'size-4',
                     }"
-                    disabled
+                    @click="open = false"
                 />
             </div>
         </template>
     </USlideover>
 </template>
+
+<script setup lang="ts">
+const { open } = useCart()
+const { count, items, total, fetchCart } = useApiCart()
+const route = useRoute()
+
+watch(
+    () => route.path,
+    () => (open.value = false),
+)
+
+onMounted(fetchCart)
+</script>

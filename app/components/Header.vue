@@ -11,8 +11,6 @@
         </template>
 
         <template #right>
-            <SearchModal />
-
             <NuxtLink v-if="isLoggedIn" to="/user">
                 <UButton icon="i-lucide-user" variant="ghost" color="neutral" aria-label="Account" :ui="{ base: 'px-1.5 lg:px-2' }" />
             </NuxtLink>
