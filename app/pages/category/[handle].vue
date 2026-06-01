@@ -6,6 +6,7 @@
         />
 
         <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">{{ categoryName }}</h1>
+        <p v-if="categoryDescription" class="lg:text-lg max-w-md mb-8 lg:mb-10">{{ categoryDescription }}</p>
 
         <div class="w-full lg:grid lg:grid-cols-12">
             <!-- Filter Sidebar -->
@@ -225,11 +226,14 @@ const clearFilters = () => {
 
 const categoryId = computed(() => Number(route.params.handle))
 
-const { data: categoryList } = await useAsyncData<{ id: number; name: string }[]>('categories-nav', () =>
+const { data: categoryList } = await useAsyncData<{ id: number; name: string; description: string | null }[]>('categories-nav', () =>
     apiFetch('/categories'),
 )
 const categoryName = computed(
     () => categoryList.value?.find((c) => c.id === categoryId.value)?.name ?? '商品列表',
+)
+const categoryDescription = computed(
+    () => categoryList.value?.find((c) => c.id === categoryId.value)?.description ?? null,
 )
 
 const queryParams = computed(() => ({
