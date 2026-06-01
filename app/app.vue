@@ -1,33 +1,13 @@
 <script setup lang="ts">
 import * as locales from '@nuxt/ui/locale'
 
-const {
-    shopify: { shopName },
-} = useAppConfig()
-const { id, init, get } = useCart()
-
 useHead({
     htmlAttrs: {
         lang: 'en',
         dir: 'ltr',
     },
-
-    title: shopName,
-
-    meta: [
-        { property: 'og:image', content: 'https://shopify.nuxtjs.org/logo-readme.jpg' },
-        { property: 'og:image:type', content: 'image/jpeg' },
-        { name: 'twitter:card', content: 'summary_large_image' },
-        { name: 'twitter:image', content: 'https://shopify.nuxtjs.org/logo-readme.jpg' },
-        { name: 'twitter:image:src', content: 'https://shopify.nuxtjs.org/logo-readme.jpg' },
-        { property: 'og:image:width', content: '1200' },
-        { name: 'twitter:image:width', content: '1200' },
-        { property: 'og:image:height', content: '600' },
-        { name: 'twitter:image:height', content: '600' },
-    ],
+    title: 'GShop',
 })
-
-watch(id, (value) => (!value ? init().then(get) : get()), { immediate: true })
 </script>
 
 <template>

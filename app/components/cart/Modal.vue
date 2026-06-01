@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-const { open } = useCart()
+const open = useState('cart-open', () => false)
 const { count, items, total, fetchCart } = useApiCart()
 const route = useRoute()
 

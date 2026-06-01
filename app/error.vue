@@ -7,20 +7,13 @@ const props = defineProps<{
     error: NuxtError
 }>()
 
-const {
-    shopify: { shopName },
-} = useAppConfig()
-const { id, init, get } = useCart()
-
 useHead({
     htmlAttrs: {
         lang: 'en',
         dir: 'ltr',
     },
-    title: shopName,
+    title: 'GShop',
 })
-
-watch(id, (value) => (!value ? init().then(get) : get()), { immediate: true })
 </script>
 
 <template>

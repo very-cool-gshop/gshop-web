@@ -1,39 +1,5 @@
-<script setup lang="ts">
-const { data: logo } = await useStorefrontData(
-    'logo',
-    `#graphql
-    query FetchLogo {
-        shop {
-            brand {
-                logo {
-                    image {
-                        ...ImageFields
-                    }
-                }
-            }
-        }
-    }
-    ${IMAGE_FRAGMENT}
-`,
-    {
-        transform: (data) => data?.shop?.brand?.logo?.image,
-    },
-)
-</script>
-
 <template>
-    <NuxtLink to="/" class="flex items-center gap-3 mr-4 shrink-0">
-        <NuxtImg
-            :src="logo?.url"
-            :alt="logo?.altText || 'Nuxt Shopify Store Logo'"
-            provider="shopify"
-            class="h-5 w-auto hue-rotate-300"
-            width="50"
-            height="22"
-            loading="eager"
-            fetchpriority="high"
-        />
-
-        Nuxt Shopify
+    <NuxtLink to="/" class="flex items-center gap-2 mr-4 shrink-0 font-bold text-lg">
+        GShop
     </NuxtLink>
 </template>

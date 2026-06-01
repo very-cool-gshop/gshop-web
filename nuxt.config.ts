@@ -1,7 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
     modules: [
-        '@nuxtjs/shopify',
         '@nuxtjs/critters',
         '@nuxt/image',
         '@nuxt/ui',
@@ -17,22 +16,6 @@ export default defineNuxtConfig({
         public: {
             apiBase: '',
         },
-
-        shopify: {
-            name: 'nuxt-shopify-demo-store',
-
-            clients: {
-                storefront: {
-                    mock: true,
-                    apiVersion: '2026-01',
-                },
-            },
-        },
-    },
-
-    routeRules: {
-        '/': { prerender: true },
-        '/blog/**': { isr: 3600 },
     },
 
     devServer: {
@@ -56,9 +39,5 @@ export default defineNuxtConfig({
                 provider: 'google',
             },
         ],
-    },
-
-    image: {
-        provider: 'shopify',
     },
 })
