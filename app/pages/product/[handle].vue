@@ -1,7 +1,7 @@
 <template>
     <UContainer class="py-6 pb-12 lg:py-8 lg:pb-16">
         <UBreadcrumb
-            :items="[{ label: 'Categories', to: '/category/clothing' }, { label: product?.name }]"
+            :items="[{ label: '所有分類', to: '/' }, { label: product?.name }]"
             class="mb-6 lg:mb-8"
         />
 
@@ -75,7 +75,7 @@
                         <USeparator class="mb-6 lg:mb-8" />
 
                         <div v-if="product.ProductVariants?.length" class="mb-6 lg:mb-8">
-                            <p class="text-sm font-medium text-gray-700 mb-2">Variants</p>
+                            <p class="text-sm font-medium text-gray-700 mb-2">規格</p>
                             <URadioGroup
                                 v-model="selectedVariantId"
                                 variant="card"
@@ -84,9 +84,9 @@
                                 :items="product.ProductVariants.map((v) => ({ label: v.name, value: String(v.id) }))"
                             />
                             <p v-if="selectedVariant && selectedVariant.stock > 0" class="text-sm text-green-600 mt-2">
-                                In stock ({{ selectedVariant.stock }} available)
+                                有庫存（剩餘 {{ selectedVariant.stock }} 件）
                             </p>
-                            <p v-else-if="selectedVariant" class="text-sm text-red-500 mt-2">Out of stock</p>
+                            <p v-else-if="selectedVariant" class="text-sm text-red-500 mt-2">已售完</p>
                         </div>
 
                         <div class="flex justify-between items-center">
@@ -100,7 +100,7 @@
                                 trailing-icon="i-lucide-shopping-bag"
                                 :ui="{ trailingIcon: 'size-5' }"
                                 class="cursor-pointer"
-                                label="Add"
+                                label="加入購物車"
                                 @click="handleAddToCart"
                             />
                         </div>
@@ -113,7 +113,7 @@
 
         <!-- You may also like -->
         <div v-if="relatedItems.length">
-            <h2 class="text-3xl text-gray-900 font-bold mb-6 lg:mb-8 lg:text-4xl">You may also like</h2>
+            <h2 class="text-3xl text-gray-900 font-bold mb-6 lg:mb-8 lg:text-4xl">你可能也喜歡</h2>
             <div class="mb-12 sm:px-12 lg:mb-16">
                 <UCarousel
                     v-slot="{ item }"
@@ -150,8 +150,8 @@
                                 color="neutral"
                                 variant="ghost"
                                 trailing-icon="i-lucide-shopping-bag"
-                                label="Add"
-                                aria-label="Add to cart"
+                                label="加入"
+                                aria-label="加入購物車"
                                 :ui="{
                                     trailingIcon: 'size-5',
                                     label: [
@@ -266,19 +266,19 @@ const handleAddToCart = async () => {
     }
     const variantId = selectedVariant.value?.id ?? product.value!.ProductVariants?.[0]?.id
     if (!variantId) {
-        toast.add({ title: 'No variant available.', color: 'error' })
+        toast.add({ title: '此商品無可用規格', color: 'error' })
         return
     }
     try {
         await addCartItem(token.value ?? null, user.value!.id, variantId, quantity.value)
         fetchCart()
-        toast.add({ title: 'Added to cart', color: 'success' })
+        toast.add({ title: '已加入購物車', color: 'success' })
     } catch (error: any) {
         if (error?.response?.status === 401) {
             await navigateTo('/login')
             return
         }
-        toast.add({ title: error?.data?.message ?? error?.message ?? 'Could not add to cart.', color: 'error' })
+        toast.add({ title: error?.data?.message ?? error?.message ?? '加入購物車失敗', color: 'error' })
     }
 }
 
@@ -291,18 +291,18 @@ const handleAddRelatedToCart = async (productId: number) => {
         const p = await apiFetch<{ ProductVariants: { id: number }[] }>(`/products/${productId}`)
         const variantId = p.ProductVariants?.[0]?.id
         if (!variantId) {
-            toast.add({ title: 'No variant available.', color: 'error' })
+            toast.add({ title: '此商品無可用規格', color: 'error' })
             return
         }
         await addCartItem(token.value ?? null, user.value!.id, variantId, 1)
         fetchCart()
-        toast.add({ title: 'Added to cart', color: 'success' })
+        toast.add({ title: '已加入購物車', color: 'success' })
     } catch (error: any) {
         if (error?.response?.status === 401) {
             await navigateTo('/login')
             return
         }
-        toast.add({ title: error?.data?.message ?? error?.message ?? 'Could not add to cart.', color: 'error' })
+        toast.add({ title: error?.data?.message ?? error?.message ?? '加入購物車失敗', color: 'error' })
     }
 }
 

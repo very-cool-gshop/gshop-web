@@ -1,8 +1,8 @@
 <template>
     <USlideover
         v-model:open="open"
-        title="Cart"
-        description="Review your selected items"
+        title="購物車"
+        description="查看已選商品"
         :ui="{ description: 'sr-only', body: 'flex flex-col gap-y-6' }"
     >
         <div class="relative">
@@ -10,7 +10,7 @@
                 icon="i-lucide-shopping-cart"
                 variant="ghost"
                 color="neutral"
-                label="Open Cart"
+                label="開啟購物車"
                 :ui="{
                     label: 'sr-only',
                     base: 'px-1.5 lg:px-2',
@@ -38,20 +38,20 @@
                 <CartApiLineItem v-for="item in items" :key="item.id" :item="item" class="shrink-0 duration-300" />
             </TransitionGroup>
 
-            <p v-if="items.length === 0" class="my-auto text-center">Your cart is empty.</p>
+            <p v-if="items.length === 0" class="my-auto text-center">購物車是空的</p>
         </template>
 
         <template #footer>
             <div v-if="total > 0" class="flex justify-between items-center w-full">
                 <p class="font-medium inline-block">
-                    Subtotal: <span class="font-semibold">{{ total.toFixed(2) }}</span>
+                    小計：<span class="font-semibold">{{ total.toFixed(2) }}</span>
                 </p>
 
                 <UButton
                     to="/checkout"
                     variant="ghost"
                     color="neutral"
-                    label="Checkout"
+                    label="結帳"
                     size="xl"
                     trailing-icon="i-lucide-arrow-right"
                     :ui="{

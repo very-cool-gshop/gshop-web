@@ -1,5 +1,5 @@
 <template>
-    <UHeader title="Nuxt Shopify">
+    <UHeader>
         <template #left>
             <Logo />
         </template>

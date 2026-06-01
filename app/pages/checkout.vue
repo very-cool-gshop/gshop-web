@@ -1,24 +1,24 @@
 <template>
     <UContainer class="py-12 lg:py-16 max-w-5xl">
-        <h1 class="text-3xl lg:text-4xl text-gray-900 font-extrabold mb-8">Checkout</h1>
+        <h1 class="text-3xl lg:text-4xl text-gray-900 font-extrabold mb-8">結帳</h1>
 
         <div v-if="items.length === 0" class="text-center py-20">
             <UIcon name="i-lucide-shopping-cart" class="size-16 text-gray-300 mx-auto mb-4" />
-            <p class="text-lg text-gray-500 mb-6">Your cart is empty.</p>
-            <UButton label="Continue Shopping" to="/" />
+            <p class="text-lg text-gray-500 mb-6">購物車是空的</p>
+            <UButton label="繼續購物" to="/" />
         </div>
 
         <div v-else-if="orderPlaced" class="text-center py-20">
             <UIcon name="i-lucide-circle-check" class="size-16 text-green-500 mx-auto mb-4" />
-            <h2 class="text-2xl font-bold mb-2">Order Placed!</h2>
-            <p class="text-gray-500 mb-6">Thank you for your purchase. We'll send you a confirmation soon.</p>
-            <UButton label="Back to Home" to="/" />
+            <h2 class="text-2xl font-bold mb-2">訂單已成立！</h2>
+            <p class="text-gray-500 mb-6">感謝您的購買，我們將盡快為您確認訂單。</p>
+            <UButton label="返回首頁" to="/" />
         </div>
 
         <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2 flex flex-col gap-6">
                 <div class="p-6 border border-default rounded-lg">
-                    <h2 class="text-lg font-bold mb-4">Shipping Address</h2>
+                    <h2 class="text-lg font-bold mb-4">收件資訊</h2>
                     <UForm :schema="schema" :state="state" class="flex flex-col gap-4" @submit="handlePlaceOrder">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <UFormField name="recipientName" label="收件人姓名" required>
@@ -36,7 +36,7 @@
                         <div class="flex justify-end pt-2">
                             <UButton
                                 type="submit"
-                                label="Place Order"
+                                label="送出訂單"
                                 size="xl"
                                 trailing-icon="i-lucide-arrow-right"
                                 :loading="loading"
@@ -49,7 +49,7 @@
 
             <div class="flex flex-col gap-4">
                 <div class="p-6 border border-default rounded-lg">
-                    <h2 class="text-lg font-bold mb-4">Order Summary</h2>
+                    <h2 class="text-lg font-bold mb-4">訂單摘要</h2>
 
                     <div class="flex flex-col gap-3 mb-4">
                         <div v-for="item in items" :key="item.id" class="flex gap-3 items-center">
@@ -68,7 +68,7 @@
                                 <p v-if="item.ProductVariant.name" class="text-xs text-gray-500 truncate">
                                     {{ item.ProductVariant.name }}
                                 </p>
-                                <p class="text-xs text-gray-400">Qty: {{ item.quantity }}</p>
+                                <p class="text-xs text-gray-400">數量：{{ item.quantity }}</p>
                             </div>
 
                             <p class="text-sm font-semibold shrink-0">
@@ -81,16 +81,16 @@
 
                     <div class="flex flex-col gap-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Subtotal</span>
+                            <span class="text-gray-500">小計</span>
                             <span class="font-medium">{{ total.toFixed(2) }}</span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-gray-500">Shipping</span>
-                            <span class="font-medium text-green-600">Free</span>
+                            <span class="text-gray-500">運費</span>
+                            <span class="font-medium text-green-600">免費</span>
                         </div>
                         <USeparator class="my-1" />
                         <div class="flex justify-between text-base">
-                            <span class="font-bold">Total</span>
+                            <span class="font-bold">總計</span>
                             <span class="font-bold">{{ total.toFixed(2) }}</span>
                         </div>
                     </div>
@@ -106,7 +106,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 
 definePageMeta({ middleware: 'auth' })
 
-useSeoMeta({ title: 'Checkout' })
+useSeoMeta({ title: '結帳' })
 
 const { items, total, fetchCart } = useApiCart()
 const toast = useToast()
@@ -145,7 +145,7 @@ const handlePlaceOrder = async (_event: FormSubmitEvent<Schema>) => {
         await fetchCart()
         orderPlaced.value = true
     } catch {
-        toast.add({ title: 'Failed to place order. Please try again.', color: 'error' })
+        toast.add({ title: '訂單送出失敗，請再試一次', color: 'error' })
     } finally {
         loading.value = false
     }

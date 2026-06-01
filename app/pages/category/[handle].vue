@@ -1,25 +1,23 @@
 <template>
     <UContainer class="py-6 lg:py-8">
         <UBreadcrumb
-            :items="[{ label: 'Categories' }, { label: 'Clothing', to: '/category/clothing' }]"
+            :items="[{ label: '所有分類', to: '/' }, { label: categoryName }]"
             class="mb-6 lg:mb-8"
         />
 
-        <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">Clothing</h1>
-
-        <p class="lg:text-lg max-w-md mb-8 lg:mb-10">Browse our clothing collection.</p>
+        <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">{{ categoryName }}</h1>
 
         <div class="w-full lg:grid lg:grid-cols-12">
             <!-- Filter Sidebar -->
             <div class="lg:col-span-4 xl:col-span-3 lg:mt-14 lg:me-16">
                 <div class="lg:sticky lg:top-24">
                     <div class="flex justify-between items-center mb-4">
-                        <p class="leading-8 text-xl font-bold">Filters</p>
+                        <p class="leading-8 text-xl font-bold">篩選</p>
                         <UButton
                             v-if="hasActiveFilters"
                             variant="ghost"
                             color="primary"
-                            label="Clear Filters"
+                            label="清除篩選"
                             @click="clearFilters"
                         />
                     </div>
@@ -54,7 +52,7 @@
 
             <!-- Product Grid -->
             <div class="my-12 lg:my-14 lg:col-span-8 xl:col-span-9">
-                <div v-if="status === 'pending'" class="flex justify-center pt-8">Loading products...</div>
+                <div v-if="status === 'pending'" class="flex justify-center pt-8">載入中...</div>
 
                 <div
                     v-else-if="!products?.data?.length"
@@ -62,14 +60,14 @@
                 >
                     <div class="flex items-center pb-2 gap-2">
                         <UIcon name="i-lucide-triangle-alert" class="text-dimmed size-6" />
-                        <p class="text-xl text-dimmed">No products found.</p>
+                        <p class="text-xl text-dimmed">找不到商品</p>
                     </div>
                     <UButton
                         v-if="hasActiveFilters"
                         variant="subtle"
                         color="primary"
                         class="mt-4"
-                        label="Clear Filters"
+                        label="清除篩選"
                         @click="clearFilters"
                     />
                 </div>
@@ -107,8 +105,8 @@
                                 color="neutral"
                                 variant="ghost"
                                 trailing-icon="i-lucide-shopping-bag"
-                                label="Add"
-                                aria-label="Add to cart"
+                                label="加入"
+                                aria-label="加入購物車"
                                 :ui="{
                                     trailingIcon: 'size-5',
                                     label: [
@@ -180,29 +178,29 @@ const handleAddToCart = async (productId: number) => {
         const p = await apiFetch<{ ProductVariants: { id: number }[] }>(`/products/${productId}`)
         const variantId = p.ProductVariants?.[0]?.id
         if (!variantId) {
-            toast.add({ title: 'No variant available.', color: 'error' })
+            toast.add({ title: '此商品無可用規格', color: 'error' })
             return
         }
         await addCartItem(token.value ?? null, user.value!.id, variantId, 1)
         fetchCart()
-        toast.add({ title: 'Added to cart', color: 'success' })
+        toast.add({ title: '已加入購物車', color: 'success' })
     } catch (error: any) {
         if (error?.response?.status === 401) {
             await navigateTo('/login')
             return
         }
-        toast.add({ title: error?.data?.message ?? error?.message ?? 'Could not add to cart.', color: 'error' })
+        toast.add({ title: error?.data?.message ?? error?.message ?? '加入購物車失敗', color: 'error' })
     }
 }
 
 const availabilityOptions = [
-    { label: 'In stock', value: 'instock' },
-    { label: 'Out of stock', value: 'outofstock' },
+    { label: '有庫存', value: 'instock' },
+    { label: '已售完', value: 'outofstock' },
 ]
 
 const accordionItems = [
-    { label: 'Availability', slot: 'availability', value: 'availability' },
-    { label: 'Price', slot: 'price', value: 'price' },
+    { label: '庫存狀態', slot: 'availability', value: 'availability' },
+    { label: '價格', slot: 'price', value: 'price' },
 ]
 
 const availability = ref<string[]>(route.query.availability ? (route.query.availability as string).split(',') : [])
@@ -226,6 +224,13 @@ const clearFilters = () => {
 }
 
 const categoryId = computed(() => Number(route.params.handle))
+
+const { data: categoryList } = await useAsyncData<{ id: number; name: string }[]>('categories-nav', () =>
+    apiFetch('/categories'),
+)
+const categoryName = computed(
+    () => categoryList.value?.find((c) => c.id === categoryId.value)?.name ?? '商品列表',
+)
 
 const queryParams = computed(() => ({
     categoryId: categoryId.value,

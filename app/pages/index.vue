@@ -1,9 +1,9 @@
 <template>
     <UContainer class="py-12 lg:py-16">
-        <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">Welcome to GShop</h1>
+        <h1 class="text-4xl lg:text-5xl text-gray-900 font-extrabold mb-6 lg:mb-8">歡迎來到 GShop</h1>
 
         <p class="lg:text-lg mb-12 lg:mb-16">
-            Browse our curated collection of products. Find the perfect items for you.
+            瀏覽我們精選的商品，找到最適合你的選擇。
         </p>
 
         <div v-if="categories?.length">
@@ -14,7 +14,7 @@
                         :to="`/category/${category.id}`"
                         variant="ghost"
                         color="neutral"
-                        label="View all"
+                        label="查看全部"
                         trailing-icon="i-lucide-arrow-right"
                         :ui="{ trailingIcon: 'size-4' }"
                     />
@@ -46,11 +46,11 @@
                     </NuxtLink>
                 </div>
 
-                <p v-else class="text-gray-400">No products in this category yet.</p>
+                <p v-else class="text-gray-400">此分類尚無商品</p>
             </div>
         </div>
 
-        <div v-else class="text-center py-20 text-gray-400">No categories found.</div>
+        <div v-else class="text-center py-20 text-gray-400">找不到分類</div>
     </UContainer>
 </template>
 
@@ -73,7 +73,7 @@ interface Category {
     name: string
 }
 
-useSeoMeta({ title: 'GShop' })
+useSeoMeta({ title: 'GShop 購物網' })
 
 const apiFetch = useApiFetch()
 

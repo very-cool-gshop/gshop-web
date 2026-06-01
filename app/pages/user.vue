@@ -1,12 +1,12 @@
 <template>
     <UContainer class="py-12 lg:py-16 max-w-2xl">
         <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-extrabold text-gray-900">My Account</h1>
-            <UButton variant="ghost" color="neutral" label="Sign out" class="cursor-pointer" @click="logout" />
+            <h1 class="text-3xl font-extrabold text-gray-900">我的帳戶</h1>
+            <UButton variant="ghost" color="neutral" label="登出" class="cursor-pointer" @click="logout" />
         </div>
 
         <div class="mb-10 p-6 border border-default rounded-lg">
-            <h2 class="text-lg font-bold mb-4">Profile</h2>
+            <h2 class="text-lg font-bold mb-4">個人資料</h2>
             <div class="flex items-center gap-4 mb-6">
                 <img
                     v-if="user?.avatar"
@@ -21,29 +21,29 @@
             </div>
             <div class="flex flex-col gap-2 text-sm">
                 <div class="flex gap-2">
-                    <span class="text-gray-500 w-20">Name</span>
+                    <span class="text-gray-500 w-20">姓名</span>
                     <span class="font-medium">{{ user?.name }}</span>
                 </div>
                 <div class="flex gap-2">
-                    <span class="text-gray-500 w-20">Email</span>
+                    <span class="text-gray-500 w-20">電子郵件</span>
                     <span class="font-medium">{{ user?.email }}</span>
                 </div>
                 <div class="flex gap-2">
-                    <span class="text-gray-500 w-20">Phone</span>
+                    <span class="text-gray-500 w-20">電話</span>
                     <span class="font-medium">{{ user?.phone ?? '—' }}</span>
                 </div>
             </div>
         </div>
 
         <div class="mb-10 p-6 border border-default rounded-lg">
-            <h2 class="text-lg font-bold mb-4">My Orders</h2>
+            <h2 class="text-lg font-bold mb-4">我的訂單</h2>
 
             <div v-if="ordersLoading" class="text-center py-8">
                 <UIcon name="i-lucide-loader-circle" class="size-6 text-gray-400 animate-spin mx-auto" />
             </div>
 
             <div v-else-if="orders.length === 0" class="text-center py-8 text-gray-400 text-sm">
-                No orders yet.
+                尚無訂單
             </div>
 
             <div v-else class="flex flex-col gap-4">
@@ -64,25 +64,25 @@
                     </div>
 
                     <div class="flex justify-end border-t border-default pt-2 text-sm font-bold">
-                        Total: ${{ Number(order.totalAmount).toFixed(2) }}
+                        總計：${{ Number(order.totalAmount).toFixed(2) }}
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="p-6 border border-default rounded-lg">
-            <h2 class="text-lg font-bold mb-4">Change Password</h2>
+            <h2 class="text-lg font-bold mb-4">修改密碼</h2>
             <UForm :schema="schema" :state="state" class="flex flex-col gap-4" @submit="handleChangePassword">
-                <UFormField name="currentPassword" label="Current password">
+                <UFormField name="currentPassword" label="目前密碼">
                     <UInput v-model="state.currentPassword" type="password" class="w-full" />
                 </UFormField>
-                <UFormField name="newPassword" label="New password">
+                <UFormField name="newPassword" label="新密碼">
                     <UInput v-model="state.newPassword" type="password" class="w-full" />
                 </UFormField>
-                <UFormField name="confirmPassword" label="Confirm new password">
+                <UFormField name="confirmPassword" label="確認新密碼">
                     <UInput v-model="state.confirmPassword" type="password" class="w-full" />
                 </UFormField>
-                <UButton type="submit" label="Update password" class="cursor-pointer" :loading="loading" />
+                <UButton type="submit" label="更新密碼" class="cursor-pointer" :loading="loading" />
             </UForm>
         </div>
     </UContainer>
@@ -137,12 +137,12 @@ ordersLoading.value = false
 
 const schema = z
     .object({
-        currentPassword: z.string().min(1, 'Required'),
-        newPassword: z.string().min(6, 'Minimum 6 characters'),
-        confirmPassword: z.string().min(1, 'Required'),
+        currentPassword: z.string().min(1, '必填'),
+        newPassword: z.string().min(6, '最少 6 個字元'),
+        confirmPassword: z.string().min(1, '必填'),
     })
     .refine((d) => d.newPassword === d.confirmPassword, {
-        message: 'Passwords do not match',
+        message: '密碼不一致',
         path: ['confirmPassword'],
     })
 
@@ -160,12 +160,12 @@ const handleChangePassword = async (event: FormSubmitEvent<Schema>) => {
                 newPassword: event.data.newPassword,
             },
         })
-        toast.add({ title: 'Password updated.', color: 'success' })
+        toast.add({ title: '密碼已更新', color: 'success' })
         state.currentPassword = ''
         state.newPassword = ''
         state.confirmPassword = ''
     } catch (error: any) {
-        toast.add({ title: error?.data?.message ?? 'Failed to update password.', color: 'error' })
+        toast.add({ title: error?.data?.message ?? '密碼更新失敗', color: 'error' })
     } finally {
         loading.value = false
     }
