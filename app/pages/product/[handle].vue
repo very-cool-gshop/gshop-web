@@ -251,7 +251,7 @@ const quantity = ref(1)
 const selectedVariant = ref<ProductVariant | null>(product.value?.ProductVariants?.[0] ?? null)
 
 
-const { user, isLoggedIn } = useAuth()
+const { isLoggedIn } = useAuth()
 const token = useCookie('token')
 const toast = useToast()
 const { fetchCart } = useApiCart()
@@ -267,7 +267,7 @@ const handleAddToCart = async () => {
         return
     }
     try {
-        await addCartItem(token.value ?? null, user.value!.id, variantId, quantity.value)
+        await addCartItem(token.value ?? null, variantId, quantity.value)
         fetchCart()
         toast.add({ title: '已加入購物車', color: 'success' })
     } catch (error: any) {
@@ -291,7 +291,7 @@ const handleAddRelatedToCart = async (productId: number) => {
             toast.add({ title: '此商品無可用規格', color: 'error' })
             return
         }
-        await addCartItem(token.value ?? null, user.value!.id, variantId, 1)
+        await addCartItem(token.value ?? null, variantId, 1)
         fetchCart()
         toast.add({ title: '已加入購物車', color: 'success' })
     } catch (error: any) {

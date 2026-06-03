@@ -8,6 +8,7 @@ interface ApiVariant {
     id: number
     name: string
     price: string
+    image: { url: string } | null
     Product: ApiProduct
 }
 
@@ -38,7 +39,7 @@ export function useApiCart() {
     async function fetchCart() {
         if (!isLoggedIn.value || !user.value) return
         try {
-            const cart = await apiFetch<ApiCart>(`/cart/${user.value.id}`)
+            const cart = await apiFetch<ApiCart>(`/cart`)
             items.value = cart.CartItems ?? []
             count.value = items.value.length
         } catch {
@@ -52,7 +53,7 @@ export function useApiCart() {
         const item = items.value.find((i) => i.id === itemId)
         if (item) item.quantity = quantity
         try {
-            await apiFetch(`/cart/${user.value.id}/items/${itemId}`, {
+            await apiFetch(`/cart/items/${itemId}`, {
                 method: 'PATCH',
                 body: { quantity },
             })
@@ -66,7 +67,7 @@ export function useApiCart() {
         items.value = items.value.filter((i) => i.id !== itemId)
         count.value = items.value.length
         try {
-            await apiFetch(`/cart/${user.value.id}/items/${itemId}`, {
+            await apiFetch(`/cart/items/${itemId}`, {
                 method: 'DELETE',
             })
         } catch {
