@@ -1,9 +1,6 @@
 <template>
     <UContainer class="py-6 pb-12 lg:py-8 lg:pb-16">
-        <UBreadcrumb
-            :items="[{ label: '所有分類', to: '/' }, { label: product?.name }]"
-            class="mb-6 lg:mb-8"
-        />
+        <UBreadcrumb :items="[{ label: '所有分類', to: '/' }, { label: product?.name }]" class="mb-6 lg:mb-8" />
 
         <div v-if="product" class="mb-12 lg:grid lg:grid-cols-12 lg:mb-16">
             <!-- Gallery -->
@@ -241,18 +238,18 @@ const { data: relatedProducts } = await useAsyncData<ProductsResponse>(`related-
 )
 
 const allImages = computed(() => {
-    const imgs: ProductImage[] = []
-    if (product.value?.image) imgs.push(product.value.image)
-    product.value?.ProductImages?.forEach((img) => {
-        if (!imgs.find((i) => i.id === img.id)) imgs.push(img)
-    })
-    return imgs
+    const variantImage = selectedVariant.value?.image
+    if (variantImage) return [variantImage]
+    const productImages = product.value?.ProductImages ?? []
+    if (productImages.length) return productImages
+    return product.value?.image ? [product.value.image] : []
 })
 
 const relatedItems = computed(() => relatedProducts.value?.data?.filter((p) => p.id !== product.value?.id) ?? [])
 
 const quantity = ref(1)
 const selectedVariant = ref<ProductVariant | null>(product.value?.ProductVariants?.[0] ?? null)
+
 
 const { user, isLoggedIn } = useAuth()
 const token = useCookie('token')
