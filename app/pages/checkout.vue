@@ -16,10 +16,19 @@
         </div>
 
         <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 flex flex-col gap-6">
+            <UForm :schema="schema" :state="state" class="lg:col-span-2 flex flex-col gap-6" @submit="handlePlaceOrder">
                 <div class="p-6 border border-default rounded-lg">
-                    <h2 class="text-lg font-bold mb-4">收件資訊</h2>
-                    <UForm :schema="schema" :state="state" class="flex flex-col gap-4" @submit="handlePlaceOrder">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-bold">收件資訊</h2>
+                        <UButton
+                            variant="subtle"
+                            size="sm"
+                            icon="i-lucide-user"
+                            label="帶入會員資料"
+                            @click="fillUserInfo"
+                        />
+                    </div>
+                    <div class="flex flex-col gap-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <UFormField name="recipientName" label="收件人姓名" required>
                                 <UInput v-model="state.recipientName" class="w-full" />
@@ -33,6 +42,38 @@
                             <UInput v-model="state.address" class="w-full" />
                         </UFormField>
 
+                        <UFormField name="note" label="備註">
+                            <UTextarea v-model="state.note" class="w-full" placeholder="如有特殊需求請填寫" />
+                        </UFormField>
+                    </div>
+                </div>
+
+                <div class="p-6 border border-default rounded-lg">
+                    <h2 class="text-lg font-bold mb-4">付款方式</h2>
+                    <div class="flex flex-col gap-4">
+                        <UFormField name="paymentMethod" label="選擇付款方式" required>
+                            <div class="flex flex-col gap-3">
+                                <label
+                                    v-for="option in paymentOptions"
+                                    :key="option.value"
+                                    class="flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors"
+                                    :class="state.paymentMethod === option.value ? 'border-primary bg-primary/5' : 'border-default hover:border-gray-400'"
+                                >
+                                    <input
+                                        v-model="state.paymentMethod"
+                                        type="radio"
+                                        :value="option.value"
+                                        class="accent-primary"
+                                    />
+                                    <UIcon :name="option.icon" class="size-5 text-gray-600 shrink-0" />
+                                    <div>
+                                        <p class="font-medium text-sm">{{ option.label }}</p>
+                                        <p class="text-xs text-gray-500">{{ option.description }}</p>
+                                    </div>
+                                </label>
+                            </div>
+                        </UFormField>
+
                         <div class="flex justify-end pt-2">
                             <UButton
                                 type="submit"
@@ -43,9 +84,9 @@
                                 :ui="{ trailingIcon: 'size-4' }"
                             />
                         </div>
-                    </UForm>
+                    </div>
                 </div>
-            </div>
+            </UForm>
 
             <div class="flex flex-col gap-4">
                 <div class="p-6 border border-default rounded-lg">
@@ -54,8 +95,8 @@
                     <div class="flex flex-col gap-3 mb-4">
                         <div v-for="item in items" :key="item.id" class="flex gap-3 items-center">
                             <NuxtImg
-                                v-if="item.ProductVariant.Product.image?.url"
-                                :src="item.ProductVariant.Product.image.url"
+                                v-if="item.ProductVariant.image?.url || item.ProductVariant.Product.image?.url"
+                                :src="(item.ProductVariant.image?.url || item.ProductVariant.Product.image?.url)!"
                                 :alt="item.ProductVariant.Product.name"
                                 width="56"
                                 height="56"
@@ -109,15 +150,24 @@ definePageMeta({ middleware: 'auth' })
 useSeoMeta({ title: '結帳' })
 
 const { items, total, fetchCart } = useApiCart()
+const { user } = useAuth()
 const toast = useToast()
 
 const loading = ref(false)
 const orderPlaced = ref(false)
 
+const paymentOptions = [
+    { value: 'credit_card', label: '信用卡', description: '支援 Visa、Mastercard、JCB', icon: 'i-lucide-credit-card' },
+    { value: 'transfer', label: '銀行轉帳', description: '下單後 3 日內完成匯款', icon: 'i-lucide-landmark' },
+    { value: 'cod', label: '貨到付款', description: '收到商品時以現金付款', icon: 'i-lucide-banknote' },
+]
+
 const schema = z.object({
     recipientName: z.string().min(1, 'Required'),
     recipientPhone: z.string().min(1, 'Required'),
     address: z.string().min(1, 'Required'),
+    note: z.string().optional(),
+    paymentMethod: z.string().min(1, '請選擇付款方式'),
 })
 
 type Schema = z.output<typeof schema>
@@ -126,7 +176,16 @@ const state = reactive<Schema>({
     recipientName: '',
     recipientPhone: '',
     address: '',
+    note: '',
+    paymentMethod: '',
 })
+
+const fillUserInfo = () => {
+    if (!user.value) return
+    state.recipientName = user.value.name
+    state.recipientPhone = user.value.phone ?? ''
+    state.address = user.value.address ?? ''
+}
 
 const apiFetch = useApiFetch()
 
@@ -139,6 +198,8 @@ const handlePlaceOrder = async (_event: FormSubmitEvent<Schema>) => {
                 recipientName: state.recipientName,
                 recipientPhone: state.recipientPhone,
                 address: state.address,
+                note: state.note || undefined,
+                paymentMethod: state.paymentMethod,
             },
         })
 

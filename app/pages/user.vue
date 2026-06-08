@@ -47,7 +47,7 @@
             </div>
 
             <div v-else class="flex flex-col gap-4">
-                <div v-for="order in orders" :key="order.id" class="border border-default rounded-lg p-4">
+                <div v-for="order in visibleOrders" :key="order.id" class="border border-default rounded-lg p-4">
                     <div class="flex justify-between items-start mb-3">
                         <div>
                             <span class="text-sm font-semibold">#{{ order.id }}</span>
@@ -67,6 +67,15 @@
                         總計：${{ Number(order.totalAmount).toFixed(2) }}
                     </div>
                 </div>
+
+                <UButton
+                    v-if="visibleCount < orders.length"
+                    variant="outline"
+                    color="neutral"
+                    label="載入更多"
+                    class="cursor-pointer w-full"
+                    @click="visibleCount += 5"
+                />
             </div>
         </div>
 
@@ -117,14 +126,18 @@ interface Order {
 
 const orders = ref<Order[]>([])
 const ordersLoading = ref(true)
+const visibleCount = ref(5)
+const visibleOrders = computed(() => orders.value.slice(0, visibleCount.value))
 
-const statusColor = (status: string) => {
-    const map: Record<string, string> = {
-        pending: 'yellow',
-        paid: 'blue',
-        shipped: 'purple',
-        delivered: 'green',
-        cancelled: 'red',
+type BadgeColor = 'error' | 'success' | 'primary' | 'secondary' | 'info' | 'warning' | 'neutral'
+
+const statusColor = (status: string): BadgeColor => {
+    const map: Record<string, BadgeColor> = {
+        pending: 'warning',
+        paid: 'info',
+        shipped: 'secondary',
+        delivered: 'success',
+        cancelled: 'error',
     }
     return map[status] ?? 'neutral'
 }
