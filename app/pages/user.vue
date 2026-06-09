@@ -73,7 +73,7 @@
                     variant="outline"
                     color="neutral"
                     label="載入更多"
-                    class="cursor-pointer w-full"
+                    class="cursor-pointer w-full justify-center"
                     @click="visibleCount += 5"
                 />
             </div>
@@ -91,7 +91,7 @@
                 <UFormField name="confirmPassword" label="確認新密碼">
                     <UInput v-model="state.confirmPassword" type="password" class="w-full" />
                 </UFormField>
-                <UButton type="submit" label="更新密碼" class="cursor-pointer" :loading="loading" />
+                <UButton type="submit" label="更新密碼" class="cursor-pointer justify-center" :loading="loading" />
             </UForm>
         </div>
     </UContainer>
