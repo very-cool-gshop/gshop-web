@@ -165,7 +165,7 @@ import { addCartItem } from '~/api/cart'
 const router = useRouter()
 const route = useRoute()
 const apiFetch = useApiFetch()
-const { user, isLoggedIn } = useAuth()
+const { isLoggedIn } = useAuth()
 const token = useCookie('token')
 const toast = useToast()
 const { fetchCart } = useApiCart()
@@ -182,7 +182,7 @@ const handleAddToCart = async (productId: number) => {
             toast.add({ title: '此商品無可用規格', color: 'error' })
             return
         }
-        await addCartItem(token.value ?? null, user.value!.id, variantId, 1)
+        await addCartItem(token.value ?? null, variantId, 1)
         fetchCart()
         toast.add({ title: '已加入購物車', color: 'success' })
     } catch (error: any) {
@@ -196,7 +196,6 @@ const handleAddToCart = async (productId: number) => {
 
 const availabilityOptions = [
     { label: '有庫存', value: 'instock' },
-    { label: '已售完', value: 'outofstock' },
 ]
 
 const accordionItems = [
@@ -207,13 +206,16 @@ const accordionItems = [
 const availability = ref<string[]>(route.query.availability ? (route.query.availability as string).split(',') : [])
 const minPrice = ref(route.query.minPrice ? Number(route.query.minPrice) : undefined)
 const maxPrice = ref(route.query.maxPrice ? Number(route.query.maxPrice) : undefined)
-const hasActiveFilters = computed(() => minPrice.value !== undefined || maxPrice.value !== undefined)
+const hasActiveFilters = computed(() =>
+    minPrice.value !== undefined || maxPrice.value !== undefined || availability.value.length > 0,
+)
 
 const applyFilters = () => {
     router.push({
         query: {
             minPrice: minPrice.value ?? undefined,
             maxPrice: maxPrice.value ?? undefined,
+            availability: availability.value.length ? availability.value.join(',') : undefined,
         },
     })
 }
@@ -221,6 +223,7 @@ const applyFilters = () => {
 const clearFilters = () => {
     minPrice.value = undefined
     maxPrice.value = undefined
+    availability.value = []
     router.push({ query: {} })
 }
 
@@ -240,6 +243,7 @@ const queryParams = computed(() => ({
     categoryId: categoryId.value,
     minPrice: minPrice.value ?? undefined,
     maxPrice: maxPrice.value ?? undefined,
+    inStock: availability.value.includes('instock') ? true : undefined,
 }))
 
 const { data: products, status } = await useAsyncData<ProductsResponse>(
