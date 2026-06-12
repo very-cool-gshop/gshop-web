@@ -36,17 +36,6 @@
                             />
                         </template>
 
-                        <template #price>
-                            <div class="flex flex-row gap-4 pb-2">
-                                <UFormField name="minPrice" label="from">
-                                    <UInputNumber v-model="minPrice" class="w-24" :min="0" @change="applyFilters" />
-                                </UFormField>
-                                <UFormField name="maxPrice" label="to">
-                                    <UInputNumber v-model="maxPrice" class="w-24" :min="0" @change="applyFilters" />
-                                </UFormField>
-                            </div>
-                        </template>
-
                     </UAccordion>
                 </div>
             </div>
@@ -200,29 +189,20 @@ const availabilityOptions = [
 
 const accordionItems = [
     { label: '庫存狀態', slot: 'availability', value: 'availability' },
-    { label: '價格', slot: 'price', value: 'price' },
 ]
 
 const availability = ref<string[]>(route.query.availability ? (route.query.availability as string).split(',') : [])
-const minPrice = ref(route.query.minPrice ? Number(route.query.minPrice) : undefined)
-const maxPrice = ref(route.query.maxPrice ? Number(route.query.maxPrice) : undefined)
-const hasActiveFilters = computed(() =>
-    minPrice.value !== undefined || maxPrice.value !== undefined || availability.value.length > 0,
-)
+const hasActiveFilters = computed(() => availability.value.length > 0)
 
 const applyFilters = () => {
     router.push({
         query: {
-            minPrice: minPrice.value ?? undefined,
-            maxPrice: maxPrice.value ?? undefined,
             availability: availability.value.length ? availability.value.join(',') : undefined,
         },
     })
 }
 
 const clearFilters = () => {
-    minPrice.value = undefined
-    maxPrice.value = undefined
     availability.value = []
     router.push({ query: {} })
 }
@@ -241,8 +221,6 @@ const categoryDescription = computed(
 
 const queryParams = computed(() => ({
     categoryId: categoryId.value,
-    minPrice: minPrice.value ?? undefined,
-    maxPrice: maxPrice.value ?? undefined,
     inStock: availability.value.includes('instock') ? true : undefined,
 }))
 
